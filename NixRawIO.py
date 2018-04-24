@@ -2,7 +2,6 @@ from __future__ import print_function, division, absolute_import
 from neo.rawio.baserawio import (BaseRawIO, _signal_channel_dtype, _unit_channel_dtype,_event_channel_dtype)
 import numpy as np
 import nixio as nix
-import io
 
 filename = 'NeoMapping.nix'
 file = nix.File.open(filename, nix.FileMode.ReadOnly)
@@ -28,6 +27,9 @@ class NixRawIO (BaseRawIO):
                 if src.type == "neo.channelindex":
                     print("\t" + src.type)
                     for csrc in src.sources:
+                        if csrc.type != "neo.channelindex":
+                            print("\t\t csrc.type: {}".format(csrc.type))
+                            continue
                         ch_name = csrc.metadata["neo_name"]
                         print("\t\t ch_name: {}".format(ch_name))
                         chan_id = csrc.metadata["channel_id"]  #refer to notes 1 to find the exact metadata mapping
@@ -69,6 +71,7 @@ class NixRawIO (BaseRawIO):
                         unit_channels.append((unit_name, unit_id, wf_units, wf_gain, wf_offset, wf_left_sweep, wf_sampling_rate))
                         unit_channels = np.array(unit_channels, dtype=_unit_channel_dtype)
         print("\t\t unit_channels: {}".format(unit_channels))
+
 
         event_channels = []
         for bl in file.blocks:
@@ -114,15 +117,24 @@ class NixRawIO (BaseRawIO):
                     even_an = seg_ann['events'][e]
 
     def _segment_t_start(self, block_index, seg_index):
-        return 0.
+        t_start = file.blocks.multi_tags.metadata #??
+        return t_start
 
     def _segment_t_stop(self, block_index, seg_index):
-        t_stop =
-        return
+        t_stop = file.blocks.multi_tags.metadata #??
+        return t_stop
 
     def _get_signal_size(self, block_index, seg_index, channel_indexes):
+        for da in file.blocks.data_arrays:
+            if da.sources.type == 'neo.analogsignal':
+                size = da.size  # not sure if my understanding to size is correct
+        return size
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):
+        for da in file.blocks.data_arrays:
+            if da.sources.type == 'neo.analogsignal':
+                sig_t_start = da.metadata #??
+        return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
         if i_start == None:
@@ -136,8 +148,57 @@ class NixRawIO (BaseRawIO):
         raw_signals = np.zeros((i_stop - i_start, nb_chan), dtype='int16') #self.raw_signals? Q1
         return raw_signals
     def _spike_count(self, block_index, seg_index, unit_index):
+        count = 0
+        for mt in file.blocks.multi_tags:
+            if mt.sources.type == 'neo.spiketrain':
+                count += 1
+        return count #don't seems to be right
 
+    def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):
 
+        if file.blocks.multi_tags.sources.type == 'neo.spiketrain':
+            spike_timestamps = file.blocks.multi_tags.metadata # what's after metadata?
+        else:
+            return  None
+        if t_start is not None or t_stop is not None:
+            lim0 = int(t_start)
+            lim1 = int(t_stop)
+            mask = (spike_timestamps >= lim0) & (spike_timestamps <= lim1)
+            spike_timestamps = spike_timestamps[mask]
+        return  spike_timestamps
+
+    def _rescale_spike_timestamp(self, spike_timestamps, dtype):
+        spike_times = spike_timestamps.astype(dtype)
+        spike_times /= self.sig_channels.sr
+        return spike_times
+
+    def _get_spike_raw_waveforms(self, block_index, seg_index, unit_index, t_start, t_stop):
+
+    def _event_count(self, block_index, seg_index, event_channel_index):
+        event_count = 0
+        epoch_count = 0
+        for event in file.blocks.multi_tags:
+            if event.sources.type == 'neo.event':
+                event_count += 1
+            return event_count
+
+    def _get_event_timestamps(self, block_index, seg_index, event_channel_index, t_start, t_stop):
+        seg_t_start = self._segment_t_start(block_index, seg_index)
+        if t_start is not None:
+            keep = timestamps >= int(t_start * self._sampling_rate)
+            timestamps = timestamps[keep]
+            labels = labels[keep]
+
+        if t_stop is not None:
+            keep = timestamps <= int(t_stop * self._sampling_rate)
+            timestamps = timestamps[keep]
+        labels = labels[keep]
+        durations = None
+        return timestamps, durations, labels
+
+    def _rescale_event_timestamp(self, event_timestamps, dtype):
+
+    def _rescale_epoch_duration(self, raw_duration, dtype):
 
 def read_nix(file):
     NixRawIO._parse_header(file)
