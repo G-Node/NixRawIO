@@ -16,7 +16,7 @@ class NixRawIO (BaseRawIO):
     def _source_name(self):
         return self.filename
 
-    def _parse_header(self):
+    def _parse_header(self):  # at Least no errors while running
 
         # alldas = [da for da in bl.data_arrays for bl in file.blocks]
         # alldasrc = [dasrc for dasrc in da.sources for da in bl.data_arrays for bl in file.blocks]
@@ -81,17 +81,17 @@ class NixRawIO (BaseRawIO):
         print("\t\t unit_channels: {}".format(unit_channels))
 
         event_channels = []
+        event_count = 0
+        epoch_count = 0
         for bl in self.file.blocks:
             for mt in bl.multi_tags:
                 for msrc in mt.sources:
-                    event_count = 0
-                    epoch_count = 0
                     if msrc.type == "neo.event":
                         ev_name = mt.name
                         ev_id = event_count
                         event_count += 1
                         ev_type = "event"
-                        event_channels.append(ev_name, ev_id, ev_type)
+                        event_channels.append(ev_name, ev_id, ev_type)  # why not defined?
                     if msrc.type == "neo.epoch":
                         ep_name = mt.name
                         ep_id = epoch_count
@@ -110,34 +110,39 @@ class NixRawIO (BaseRawIO):
 
         self._generate_minimal_annotations()
 
+        ac = 0  # cannot integrate into for loop because objects are not iterable
+        stc = 0
+        ec = 0
         for bl in self.file.blocks:
             for block_index in range(len(self.file.blocks)):
                 bl_ann = self.raw_annotations['blocks'][block_index]
                 print("\t\t bl_ann: {}".format(bl_ann))
-            for seg in bl.groups:
-                seg_index = 0
-                seg_ann = bl_ann['segments'][seg_index]
-                seg_index += 1
+                seg_range = [len(bl.groups) for bl in self.file.blocks]
+                for seg_index in range(seg_range[block_index]):
+                    seg_ann = bl_ann['segments'][seg_index]
                 for da in self.file.blocks[block_index].data_arrays:
                     if da.type == "neo.analogsignal":
-                        anasig_an = seg_ann['signals'][da]
-                    if da.type == "neo.irregularlysampledsignal":  # da.source.type or da.type is fine?
-                        iranasig_an = seg_ann['signals'][da]
+                        anasig_an = seg_ann['signals'][ac] # should I include irregular signals?
+                        ac += 1
                 for st in unit_channels:
-                    spiketrain_an = seg_ann['units'][st]
+                    spiketrain_an = seg_ann['units'][stc]
+                    stc += 1
                 for e in event_channels:
-                    even_an = seg_ann['events'][e]
+                    even_an = seg_ann['events'][ec]
+                    ec += 1
 
-    def _segment_t_start(self, block_index, seg_index):  # how to do multitags indexing
+    def _segment_t_start(self, block_index, seg_index):  # Done!
         t_start = 0
-        for gp in self.file.blocks[block_index].groups:
-            for da in gp.data_arrays:
-                if da.type == "neo.analogsignal":
-                    t_start = da.metadata['t_start']  # should be groups or multitag?
+        for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
+            if mt.type == "neo.spiketrain":
+                t_start = mt.metadata['t_start']
         return t_start
 
-    def _segment_t_stop(self, block_index, seg_index):
-        t_stop = self.file.blocks[block_index].multi_tags.metadata['t_stop']
+    def _segment_t_stop(self, block_index, seg_index):  # Done!
+        t_stop = 0
+        for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
+            if mt.type == "neo.spiketrain":
+                t_stop = mt.metadata['t_stop']
         return t_stop
 
     def _get_signal_size(self, block_index, seg_index, channel_indexes):   # Done!
@@ -147,13 +152,12 @@ class NixRawIO (BaseRawIO):
                 size = da.size
         return size
 
-    def _get_signal_t_start(self, block_index, seg_index, channel_indexes):
+    def _get_signal_t_start(self, block_index, seg_index, channel_indexes):  # Done!
         sig_t_start = 0
         for bl in self.file.blocks:
             for da in bl.data_arrays:
-                for src in da.sources:
-                    if src.type == 'neo.analogsignal':
-                        sig_t_start = float(da.metadata['t_start'])
+                if da.type == 'neo.analogsignal':
+                    sig_t_start = float(da.metadata['t_start'])
         return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # Done!
@@ -191,8 +195,9 @@ class NixRawIO (BaseRawIO):
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):
 
-        if self.file.blocks.multi_tags.sources.type == 'neo.spiketrain':
-            spike_timestamps = self.file.blocks.multi_tags.metadata['t_stop'] - self.file.blocks.multi_tags.metadata['t_start']
+        if self.file.blocks[block_index].multi_tags.sources.type == 'neo.spiketrain':
+            spike_timestamps = self.file.blocks.multi_tags.metadata['t_stop']\
+                               - self.file.blocks.multi_tags.metadata['t_start']
         else:
             return None
         if t_start is not None or t_stop is not None:
@@ -224,12 +229,14 @@ class NixRawIO (BaseRawIO):
     def _get_event_timestamps(self, block_index, seg_index, event_channel_index, t_start, t_stop):
         seg_t_start = self._segment_t_start(block_index, seg_index)
         timestamp = []
-        labels = ""
+        labels = []
 
         for mt in self.file.blocks[block_index].multi_tags:
             if mt.type == "neo.event":
                 timestamp = np.array(3,3) + seg_t_start  # np array should be replaced by some attributes
-                labels = mt.name  # not sure if correct
+                labels.append([mt.positions.dimensions[1].labels])
+                # setDimension have labels  label must a dtype ='U'
+        labels = np.array(labels, dtype='U')
 
         if t_start is not None:
             keep = timestamp >= t_start
@@ -241,15 +248,10 @@ class NixRawIO (BaseRawIO):
         durations = None
         return timestamp, durations, labels
 
-    def _rescale_event_timestamp(self, event_timestamps, dtype):
+    def _rescale_event_timestamp(self, event_timestamps, dtype):  # Done!
         event_times = event_timestamps.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return event_times
 
-    def _rescale_epoch_duration(self, raw_duration, dtype):
+    def _rescale_epoch_duration(self, raw_duration, dtype):  # Done!
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations
-
-
-
-
-
