@@ -28,7 +28,7 @@ class NixRawIO (BaseRawIO):
             print("\t\t block: {}".format(bl))
             for src in bl.sources:
                 if src.type == "neo.channelindex":
-                    print("\t" + src.type)
+                    print("\t\t src.type: {}".format(src.type))
                     for csrc in src.sources:
                         if csrc.type != "neo.channelindex":
                             print("\t\t csrc.type: {}".format(csrc.type))
@@ -60,8 +60,8 @@ class NixRawIO (BaseRawIO):
         unit_name = ""
         unit_id = ""
         for bl in self.file.blocks:
-            print("\t\t block: {}".format(bl))
-            for usrc in bl.sources:
+            print("\t\t u_block: {}".format(bl))
+            for usrc in bl.sources:                # from this part on the code is not running
                 if usrc.type == "neo.unit":
                     unit_name = usrc.name
                     print("\t\t unit_name: {}".format(unit_name))
@@ -86,8 +86,9 @@ class NixRawIO (BaseRawIO):
         for bl in self.file.blocks:
             for mt in bl.multi_tags:
                 for msrc in mt.sources:
-                    if msrc.type == "neo.event":
+                    if msrc.type == "neo.event":  # also not running
                         ev_name = mt.name
+                        print("\t\t ev_name: {}".format(ev_name))
                         ev_id = event_count
                         event_count += 1
                         ev_type = "event"
@@ -241,7 +242,9 @@ class NixRawIO (BaseRawIO):
                     if mt.type == "neo.event.times":  # 'numpy.ndarray' object has no attribute 'type'
                         timestamp.append(po)
         timestamp = np.array(timestamp, dtype="float") + seg_t_start
+        print("\t\t ev_timestamp: {}".format(timestamp))
         labels = np.array(labels, dtype='U')
+        print("\t\t ev_labels: {}".format(labels))
 
         if t_start is not None:
             keep = timestamp >= t_start
