@@ -61,22 +61,24 @@ class NixRawIO (BaseRawIO):
         unit_id = ""
         for bl in self.file.blocks:
             print("\t\t u_block: {}".format(bl))
-            for usrc in bl.sources:                # from this part on the code is not running
-                if usrc.type == "neo.unit":
-                    unit_name = usrc.name
-                    print("\t\t unit_name: {}".format(unit_name))
-                    unit_id = usrc.id
-                    print("\t\t unit_id: {}".format(unit_id))
             for mt in bl.multi_tags:
-                for msrc in mt.sources:
-                    if msrc.type == "neo.spiketrain":
-                        wf_units = "mV"
-                        wf_gain = 0
-                        wf_offset = 0.
-                        wf_left_sweep = 10
-                        wf_sampling_rate = 1000.
-                        unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
-                                              wf_offset, wf_left_sweep, wf_sampling_rate))
+                if mt.type == "neo.spiketrain":
+                    for usrc in mt.sources:
+                        if usrc.type == "neo.unit":
+                            unit_name = usrc.name
+                            print("\t\t unit_name: {}".format(unit_name))
+                            unit_id = usrc.id
+                            print("\t\t unit_id: {}".format(unit_id))
+            for mt in bl.multi_tags:
+                if mt.type == "neo.spiketrain":
+                    wf_units = "mV"
+                    wf_gain = 0
+                    wf_offset = 0.
+                    print("\t\t :wf_offset {}".format(wf_offset))
+                    wf_left_sweep = 10
+                    wf_sampling_rate = 1000.
+                    unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
+                                          wf_offset, wf_left_sweep, wf_sampling_rate))
         unit_channels = np.array(unit_channels, dtype=_unit_channel_dtype)
         print("\t\t unit_channels: {}".format(unit_channels))
 
@@ -85,20 +87,19 @@ class NixRawIO (BaseRawIO):
         epoch_count = 0
         for bl in self.file.blocks:
             for mt in bl.multi_tags:
-                for msrc in mt.sources:
-                    if msrc.type == "neo.event":  # also not running
-                        ev_name = mt.name
-                        print("\t\t ev_name: {}".format(ev_name))
-                        ev_id = event_count
-                        event_count += 1
-                        ev_type = "event"
-                        event_channels.append(ev_name, ev_id, ev_type)  # why not defined?
-                    if msrc.type == "neo.epoch":
-                        ep_name = mt.name
-                        ep_id = epoch_count
-                        epoch_count += 1
-                        ep_type = "epoch"
-                        event_channels.append(ep_name, ep_id, ep_type)
+                if mt.type == "neo.event":
+                    ev_name = mt.name
+                    print("\t\t ev_name: {}".format(ev_name))
+                    ev_id = event_count
+                    event_count += 1
+                    ev_type = "event"
+                    event_channels.append((ev_name, ev_id, ev_type))
+                if mt.type == "neo.epoch":
+                    ep_name = mt.name
+                    ep_id = epoch_count
+                    epoch_count += 1
+                    ep_type = "epoch"
+                    event_channels.append((ep_name, ep_id, ep_type))
         event_channels = np.array(event_channels, dtype=_event_channel_dtype)
         print("\t\t event_channels: {}".format(event_channels))
 
@@ -114,23 +115,24 @@ class NixRawIO (BaseRawIO):
         ac = 0  # cannot integrate into for loop because objects are not iterable
         stc = 0
         ec = 0
-        for bl in self.file.blocks:
-            for block_index in range(len(self.file.blocks)):
-                bl_ann = self.raw_annotations['blocks'][block_index]
-                print("\t\t bl_ann: {}".format(bl_ann))
-                seg_range = [len(bl.groups) for bl in self.file.blocks]
-                for seg_index in range(seg_range[block_index]):
-                    seg_ann = bl_ann['segments'][seg_index]
-                for da in self.file.blocks[block_index].data_arrays:
-                    if da.type == "neo.analogsignal":
-                        anasig_an = seg_ann['signals'][ac] # should I include irregular signals?
-                        ac += 1
-                for st in unit_channels:
-                    spiketrain_an = seg_ann['units'][stc]
-                    stc += 1
-                for e in event_channels:
-                    even_an = seg_ann['events'][ec]
-                    ec += 1
+
+        for block_index in range(len(self.file.blocks)):
+            bl_ann = self.raw_annotations['blocks'][block_index]
+            print("\t\t bl_ann: {}".format(bl_ann))
+            seg_range = [len(bl.groups) for bl in self.file.blocks]
+            for seg_index in range(seg_range[block_index]):
+                seg_ann = bl_ann['segments'][seg_index]
+            for da in self.file.blocks[block_index].data_arrays:
+                if da.type == "neo.analogsignal":
+                    anasig_an = seg_ann['signals'][ac] # should I include irregular signals?
+                    ac += 1
+            for st in unit_channels:
+                spiketrain_an = seg_ann['units'][stc]
+                print("\t\t spiketrain_an: {}".format(spiketrain_an))
+                stc += 1
+            for e in event_channels:
+                even_an = seg_ann['events'][ec]
+                ec += 1
 
     def _segment_t_start(self, block_index, seg_index):  # Done!
         t_start = 0
@@ -199,10 +201,8 @@ class NixRawIO (BaseRawIO):
         spike_timestamps = []
         for mt in self.file.blocks[block_index].multi_tags:
             if mt.type == 'neo.spiketrain':
-                spike_timestamps.append([mt.metadata['t_stop']\
-                               - mt.metadata['t_start']])
+                spike_timestamps.append([mt.metadata['t_stop'] - mt.metadata['t_start']])
         spike_timestamps = np.array(spike_timestamps)
-
 
         if t_start is not None or t_stop is not None:  # assumed t_start and T-stop unit is S
             lim0 = int(t_start)
@@ -237,7 +237,7 @@ class NixRawIO (BaseRawIO):
 
         for mt in self.file.blocks[block_index].multi_tags:
             if mt.type == "neo.event":
-                labels.append([mt.positions.dimensions[0].labels]) # 'Index out of bounds: 1'
+                labels.append([mt.positions.dimensions[0].labels])  # 'Index out of bounds: 1'
                 for po in mt.positions:
                     if mt.type == "neo.event.times":  # 'numpy.ndarray' object has no attribute 'type'
                         timestamp.append(po)
@@ -263,8 +263,3 @@ class NixRawIO (BaseRawIO):
     def _rescale_epoch_duration(self, raw_duration, dtype):  # Done!
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations
-
-
-
-
-
