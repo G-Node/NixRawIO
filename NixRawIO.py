@@ -70,7 +70,7 @@ class NixRawIO (BaseRawIO):
             for mt in bl.multi_tags:
                 for msrc in mt.sources:
                     if msrc.type == "neo.spiketrain":
-                        wf_units = "mV"   # this is assuming wf= None, should be change
+                        wf_units = "mV"
                         wf_gain = 0
                         wf_offset = 0.
                         wf_left_sweep = 10
@@ -170,9 +170,9 @@ class NixRawIO (BaseRawIO):
             for chan in self.file.blocks[block_index].source.type == "neo.channelindex":
                 # not sure if I understand the parameter right
                 chan_list.append(chan)
-            nb_chan = chan_list  # should be None or list or np.array
+            nb_chan = chan_list
         else:
-            nb_chan = channel_indexes  # should there be sth checking if the type is channelindex
+            nb_chan = channel_indexes
 
         raw_signals_list = []
         for ch in self.file.blocks[block_index].sources:
@@ -194,22 +194,25 @@ class NixRawIO (BaseRawIO):
         return count
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):
+        # return 2.4, which is the t_stop - t_start not sure if this is the meaning of timestamps
+        spike_timestamps = []
+        for mt in self.file.blocks[block_index].multi_tags:
+            if mt.type == 'neo.spiketrain':
+                spike_timestamps.append([mt.metadata['t_stop']\
+                               - mt.metadata['t_start']])
+        spike_timestamps = np.array(spike_timestamps)
 
-        if self.file.blocks[block_index].multi_tags.sources.type == 'neo.spiketrain':
-            spike_timestamps = self.file.blocks.multi_tags.metadata['t_stop']\
-                               - self.file.blocks.multi_tags.metadata['t_start']
-        else:
-            return None
-        if t_start is not None or t_stop is not None:
+
+        if t_start is not None or t_stop is not None:  # assumed t_start and T-stop unit is S
             lim0 = int(t_start)
             lim1 = int(t_stop)
             mask = (spike_timestamps >= lim0) & (spike_timestamps <= lim1)
             spike_timestamps = spike_timestamps[mask]
         return spike_timestamps
 
-    def _rescale_spike_timestamp(self, spike_timestamps, dtype):
+    def _rescale_spike_timestamp(self, spike_timestamps, dtype):  # Done! unsure about the calculation is correct
         spike_times = spike_timestamps.astype(dtype)
-        if self.file.blocks.data_arrays.type == "neo.spiketrain":
+        if self.file.blocks[0].data_arrays[0].type == "neo.spiketrain":
             spike_times *= self.file.blocks.data_arrays.dimensions["SampledDimension"]
             # nix use sampl interval instead of sr
             # sr = 1 / da.dimensions[0].sampling_interval
@@ -233,9 +236,11 @@ class NixRawIO (BaseRawIO):
 
         for mt in self.file.blocks[block_index].multi_tags:
             if mt.type == "neo.event":
-                timestamp = np.array(3,3) + seg_t_start  # np array should be replaced by some attributes
-                labels.append([mt.positions.dimensions[1].labels])
-                # setDimension have labels  label must a dtype ='U'
+                labels.append([mt.positions.dimensions[0].labels]) # 'Index out of bounds: 1'
+                for po in mt.positions:
+                    if mt.type == "neo.event.times":  # 'numpy.ndarray' object has no attribute 'type'
+                        timestamp.append(po)
+        timestamp = np.array(timestamp, dtype="float") + seg_t_start
         labels = np.array(labels, dtype='U')
 
         if t_start is not None:
@@ -255,3 +260,8 @@ class NixRawIO (BaseRawIO):
     def _rescale_epoch_duration(self, raw_duration, dtype):  # Done!
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations
+
+
+
+
+
