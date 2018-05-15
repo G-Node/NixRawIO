@@ -15,7 +15,6 @@ class NixRawIO (BaseRawIO):
 
     def _source_name(self):
         return self.filename
-    continue
 
     def _parse_header(self):  # at Least no errors while running
 
