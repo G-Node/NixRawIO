@@ -170,7 +170,7 @@ class NixRawIO (BaseRawIO):
         if i_stop is None:
             i_stop = len(self.file.blocks[block_index].data_arrays)
         if channel_indexes is None:
-            chan_list = []
+            chan_list = []   # Not working not appending doing nth
             for chan in self.file.blocks[block_index].sources:
                 if chan.type == "neo.channelindex":
                     # not sure if I understand the parameter right
@@ -182,15 +182,18 @@ class NixRawIO (BaseRawIO):
         raw_signals_list = []
         for ch in self.file.blocks[block_index].sources:
             for csrc in ch.sources:
-                if ch.type == "neo.channelindex":
+                if ch.type == "neo.channelindex":  # returning the same sequence regardless of the channel_index
+                    # print(csrc) 6 channel_indexes and one unit type= neo.unit
                     try:
                         if np.any(csrc.metadata["channel_id"] == nb_chan): # should I use any or all?
                             # if "channel_id" in csrc.metadata:
                                 #
                             for i in range(i_start, i_stop):
+                                # print(range(i_start, i_stop))
                                 for da in self.file.blocks[block_index].data_arrays[i]:
-                                    raw_signals_list.append(da)
-                                    print(np.shape(da))
+                                    if self.file.blocks[block_index].data_arrays[i].type == "neo.analogsignal":
+                                        raw_signals_list.append(da)
+                                        # print(np.shape(da))
                     except KeyError:
                         pass
         raw_signals = np.array(raw_signals_list, ndmin=2) # test asserted ndmin should be 2
