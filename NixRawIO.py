@@ -122,17 +122,17 @@ class NixRawIO (BaseRawIO):
             seg_range = [len(bl.groups) for bl in self.file.blocks]
             for seg_index in range(seg_range[block_index]):
                 seg_ann = bl_ann['segments'][seg_index]
-            for da in self.file.blocks[block_index].data_arrays:
-                if da.type == "neo.analogsignal":
-                    anasig_an = seg_ann['signals'][ac] # should I include irregular signals?
-                    ac += 1
-            for st in unit_channels:
-                spiketrain_an = seg_ann['units'][stc]
-                print("\t\t spiketrain_an: {}".format(spiketrain_an))
-                stc += 1
-            for e in event_channels:
-                even_an = seg_ann['events'][ec]
-                ec += 1
+                for da in self.file.blocks[block_index].data_arrays:
+                    if da.type == "neo.analogsignal":
+                        anasig_an = seg_ann['signals'][ac]  # should I include irregular signals?
+                        ac += 1
+                for st in unit_channels:
+                    spiketrain_an = seg_ann['units'][stc]
+                    print("\t\t spiketrain_an: {}".format(spiketrain_an))
+                    stc += 1
+                for e in event_channels:
+                    even_an = seg_ann['events'][ec]
+                    ec += 1
 
     def _segment_t_start(self, block_index, seg_index):  # Done!
         t_start = 0
@@ -196,25 +196,30 @@ class NixRawIO (BaseRawIO):
                     count += 1
         return count
 
-    def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):
-        # return 2.4, which is the t_stop - t_start not sure if this is the meaning of timestamps
+    def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):  # Done!
         spike_timestamps = []
         for mt in self.file.blocks[block_index].multi_tags:
             if mt.type == 'neo.spiketrain':
-                spike_timestamps.append([mt.metadata['t_stop'] - mt.metadata['t_start']])
+                st_times = mt.positions
+                spike_timestamps.append(st_times)
         spike_timestamps = np.array(spike_timestamps)
 
         if t_start is not None or t_stop is not None:  # assumed t_start and T-stop unit is S
-            lim0 = int(t_start)
-            lim1 = int(t_stop)
+            lim0 = t_start
+            lim1 = t_stop
             mask = (spike_timestamps >= lim0) & (spike_timestamps <= lim1)
             spike_timestamps = spike_timestamps[mask]
         return spike_timestamps
 
-    def _rescale_spike_timestamp(self, spike_timestamps, dtype):  # Done! unsure about the calculation is correct
+    def _rescale_spike_timestamp(self, spike_timestamps, dtype):  # Done!
         spike_times = spike_timestamps.astype(dtype)
-        if self.file.blocks[0].data_arrays[0].type == "neo.spiketrain":
-            spike_times *= self.file.blocks.data_arrays.dimensions["SampledDimension"]
+        # sr = self.header['signal_channels'][]
+        for bl in self.file.blocks:
+            for da in bl.data_arrays:
+                if da.type == "neo.analogsignal":
+                    for di in da.dimensions:
+                        sr = 1 / di.sampling_interval
+        spike_times *= sr
             # nix use sampl interval instead of sr
             # sr = 1 / da.dimensions[0].sampling_interval
         return spike_times
@@ -230,17 +235,17 @@ class NixRawIO (BaseRawIO):
                     event_count += 1
         return event_count
 
-    def _get_event_timestamps(self, block_index, seg_index, event_channel_index, t_start, t_stop):
+    def _get_event_timestamps(self, block_index, seg_index, event_channel_index, t_start, t_stop):  # Done!
         seg_t_start = self._segment_t_start(block_index, seg_index)
         timestamp = []
         labels = []
 
         for mt in self.file.blocks[block_index].multi_tags:
             if mt.type == "neo.event":
-                labels.append([mt.positions.dimensions[0].labels])  # 'Index out of bounds: 1'
-                for po in mt.positions:
-                    if mt.type == "neo.event.times":  # 'numpy.ndarray' object has no attribute 'type'
-                        timestamp.append(po)
+                labels.append(mt.positions.dimensions[0].labels)
+                po = mt.positions
+                if po.type == "neo.event.times":
+                    timestamp.append(po)
         timestamp = np.array(timestamp, dtype="float") + seg_t_start
         print("\t\t ev_timestamp: {}".format(timestamp))
         labels = np.array(labels, dtype='U')
