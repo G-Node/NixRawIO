@@ -81,7 +81,9 @@ for idx in range(nsegments):
 
 # Write the Block to file using the NixIO
 # Any existing file will be overwritten
-io = NixIO("neoraw.nix", "ow")
+fname = "neoraw.nix"
+io = NixIO(fname, "ow")
 io.write_block(block)
-
 io.close()
+
+print("Done. Saved to {}".format(fname))
