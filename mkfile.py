@@ -19,7 +19,7 @@ for idx in range(nsegments):
 
     # Generate 3 fake data signals using numpy's random function
     # The shapes of the arrays are arbitrary
-    data_a = np.random.random((300, 2)) # make the shape all the same, to make sure array generation is good
+    data_a = np.random.random((300, 1)) # make the shape all the same, to make sure array generation is good
     # not sure if it is the general case
     data_b = np.random.random((1200, 3))
     data_c = np.random.random((8000, 5))
