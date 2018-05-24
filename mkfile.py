@@ -17,6 +17,8 @@ for idx in range(nsegments):
                   description="Segment number {}".format(idx))
     block.segments.append(seg)
 
+
+
     # Generate 3 fake data signals using numpy's random function
     # The shapes of the arrays are arbitrary
     data_a = np.random.random((300, 1)) # make the shape all the same, to make sure array generation is good
@@ -24,14 +26,25 @@ for idx in range(nsegments):
     data_b = np.random.random((1200, 3))
     data_c = np.random.random((8000, 5))
     nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1]
+    nchannels = 3
 
     sampling_rate = pq.Quantity(10, "Hz")
+
+    indexes = np.arange(nchannels)
+    for ch in range(nchannels):
+        chx = ChannelIndex(name="channel-{}".format(idx + ch),
+                           index=indexes,
+                           channel_names=[chr(ord("a") + i) for i in indexes],
+                           channel_ids=indexes + 1)
+
+        block.channel_indexes.append(chx)
 
     for didx, data in enumerate((data_a, data_b, data_c)):
         asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
                             signal=data, units="mV",
                             sampling_rate=sampling_rate)
         seg.analogsignals.append(asig)
+        block.channel_indexes[didx].analogsignals.append(asig)
 
     # random sampling times for data_b
     irsigdata = np.random.random((1200, 2))
@@ -67,14 +80,6 @@ for idx in range(nsegments):
     st.sampling_rate = sampling_rate
 
     seg.spiketrains.append(st)
-
-    indexes = np.arange(nchannels)
-    chx = ChannelIndex(name="channel-{}".format(idx),
-                       index=indexes,
-                       channel_names=[chr(ord("a") + i) for i in indexes],
-                       channel_ids=indexes+1)
-    block.channel_indexes.append(chx)
-    chx.analogsignals.extend(seg.analogsignals)
 
     unit = Unit(name="unit-{}".format(idx))
     unit.spiketrains.append(st)
