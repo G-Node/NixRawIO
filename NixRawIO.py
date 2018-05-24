@@ -189,27 +189,16 @@ class NixRawIO (BaseRawIO):
             nb_chan = channel_indexes
 
         raw_signals_list = []
-        for ch in self.file.blocks[block_index].sources:
-            for csrc in ch.sources:
-                if csrc.type == "neo.channelindex" and csrc.metadata["channel_id"] in nb_chan:
-                    # print(csrc) 6 channel_indexes and one unit type= neo.unit
-                    # try:
-                        # if csrc.metadata["channel_id"] in nb_chan: # should I use any or all?
-                            # print(i_start, i_stop)  # even i start i stop change, returned array unchange
-                    for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
-                        if da.type == "neo.analogsignal" and ch in da.sources:
-                            print("Adding", da.metadata["neo_name"], da.name)
-                            raw_signals_list.append(da[i_start:i_stop])
-                        else:
-                            print("Skip", da.metadata["neo_name"])
+        for ch in nb_chan:
+            chan_name = self.file.blocks[block_index].sources[ch].name
+            for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
+                if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
+                    i_stop = min(len(da) for da in self.file.blocks[block_index].groups[seg_index].data_arrays
+                                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name)
+                    raw_signals_list.append(da[i_start:i_stop])
                 else:
-                    print("Skipping", csrc.metadata["neo_name"])
-
-                            # print(np.shape(da), da.name)  # maybe I should use
-                    # except KeyError:
-                        # pass
-        raw_signals = np.array(raw_signals_list) # test asserted ndmin should be 2
-        # length of da always different / raise value error
+                    print("Skip", da.metadata["neo_name"])
+        raw_signals = np.array(raw_signals_list)
         print(np.shape(raw_signals))
         return raw_signals
 
@@ -244,6 +233,7 @@ class NixRawIO (BaseRawIO):
                 if da.type == "neo.analogsignal":
                     for di in da.dimensions:
                         sr = 1 / di.sampling_interval
+                        break
         spike_times *= sr
             # nix use sampl interval instead of sr
             # sr = 1 / da.dimensions[0].sampling_interval
