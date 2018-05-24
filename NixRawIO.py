@@ -173,9 +173,6 @@ class NixRawIO (BaseRawIO):
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # Done!
         if i_start is None:
             i_start = 0
-        if i_stop is None:
-            i_stop = min(len(da) for da in self.file.blocks[block_index]
-                         .groups[seg_index].data_arrays if da.type == "neo.analogsignal")
         if channel_indexes is None:
             chan_list = []
             for chan in self.file.blocks[block_index].sources:
@@ -204,9 +201,19 @@ class NixRawIO (BaseRawIO):
 
     def _spike_count(self, block_index, seg_index, unit_index):         # Done!
         count = 0
+        unit_list = []
+        for ch in self.file.blocks[block_index].sources:
+            for unit in ch.sources:
+                if unit.type == "neo.unit":
+                    unit_list.append(unit)
+                else:
+                    print(unit.type)
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
-            if mt.type == 'neo.spiketrain':
-                count += 1
+            for src in mt.sources:
+                if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
+                    for u in unit_index:
+                        if unit_list[u].id == src.id:
+                            count += 1
         return count
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):  # Done!

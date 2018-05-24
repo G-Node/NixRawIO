@@ -83,6 +83,7 @@ for idx in range(nsegments):
 
     unit = Unit(name="unit-{}".format(idx))
     unit.spiketrains.append(st)
+    print(chx.name)
     chx.units.append(unit)
 
 # Write the Block to file using the NixIO
