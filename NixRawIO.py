@@ -206,8 +206,7 @@ class NixRawIO (BaseRawIO):
             for unit in ch.sources:
                 if unit.type == "neo.unit":
                     unit_list.append(unit)
-                else:
-                    print(unit.type)
+        print("\t\t unit_channels: {}".format(self.header['unit_channels']))
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
             for src in mt.sources:
                 if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
@@ -218,13 +217,22 @@ class NixRawIO (BaseRawIO):
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):  # Done!
         spike_timestamps = []
+        unit_list = []
+        for ch in self.file.blocks[block_index].sources:
+            for unit in ch.sources:
+                if unit.type == "neo.unit":
+                    unit_list.append(unit)
+        print("\t\t unit_channels: {}".format(self.header['unit_channels'][0]))
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
-            if mt.type == 'neo.spiketrain':
-                st_times = mt.positions
-                spike_timestamps.append(st_times)
+            for src in mt.sources:
+                if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
+                    for u in unit_index:
+                        if unit_list[u].id == src.id:
+                            st_times = mt.positions
+                            spike_timestamps.append(st_times)
         spike_timestamps = np.array(spike_timestamps)
 
-        if t_start is not None or t_stop is not None:  # assumed t_start and T-stop unit is S
+        if t_start is not None or t_stop is not None:
             lim0 = t_start
             lim1 = t_stop
             mask = (spike_timestamps >= lim0) & (spike_timestamps <= lim1)
