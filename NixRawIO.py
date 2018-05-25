@@ -17,44 +17,31 @@ class NixRawIO (BaseRawIO):
     def _source_name(self):
         return self.filename
 
-    def _parse_header(self):  # at Least no errors while running
+    def _parse_header(self):
 
-        # alldas = [da for da in bl.data_arrays for bl in file.blocks]
-        # alldasrc = [dasrc for dasrc in da.sources for da in bl.data_arrays for bl in file.blocks]
         self.file = nix.File.open(self.filename, nix.FileMode.ReadOnly)
         sig_channels = []
-        sig_info = []
-        ch_name = ""
-        chan_id = ""
         for bl in self.file.blocks:
-            # print("\t\t block: {}".format(bl))
-            for src in bl.sources:
-                if src.type == "neo.channelindex":
-                    # print("\t\t src.type: {}".format(src.type))
-                    for csrc in src.sources:
-                        if csrc.type != "neo.channelindex":
-                            # print("\t\t csrc.type: {}".format(csrc.type))
-                            continue
-                        ch_name = csrc.metadata["neo_name"]
-                        # print("\t\t ch_name: {}".format(ch_name))
-                        chan_id = csrc.metadata["channel_id"]  # refer to notes 1 to find the exact metadata mapping
-                        # print("\t\t name: {}".format(chan_id))
-            for da in bl.data_arrays:
-                for dsrc in da.sources:
-                    if dsrc.type == "neo.channelindex":
-                        units = da.unit
-                        # print("\t\t units: {}".format(units))
-                        dtype = da.dtype
-                        # print("\t\t dtype: {}".format(dtype))
-                        sr = 0
-                        if da.type == "neo.analogsignal":
-                            sr = 1 / da.dimensions[0].sampling_interval
-                            # print("\t\t sr: {}".format(sr))
-                        group_id = 0
-                        # print("\t\t group_id: {}".format(group_id))
-                        gain = 1
-                        offset = 0.
-                        sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
+            for didx, da in enumerate(bl.data_arrays):
+                if da.type == "neo.analogsignal":
+                    # print(didx, da)
+                    # for dsrc in da.sources: # channelindex
+                        # ch_name = dsrc.metadata["neo_name"] or dsrc.sources.metadata... ?
+                        # for csrc in dsrc.sources: # channelindex children/ unit
+                            # if csrc.type == "neo.channelindex":
+                    ch_name = da.metadata["neo_name"] + " Signal " + chr(ord("a") + didx)
+                    chan_id = da.metadata["neo_name"][-1] # not sure if chan_id should look like that
+                    units = da.unit
+                    # print("\t\t units: {}".format(units))
+                    dtype = da.dtype
+                    # print("\t\t dtype: {}".format(dtype))
+                    sr = 1 / da.dimensions[0].sampling_interval
+                     # print("\t\t sr: {}".format(sr))
+                    group_id = 0  # set a list if sr already same group_id if not same, set up another
+                    # print("\t\t group_id: {}".format(group_id))
+                    gain = 1
+                    offset = 0.
+                    sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
         sig_channels = np.array(sig_channels, dtype=_signal_channel_dtype)
         # print("\t\t sig_channel: {}".format(sig_channels))
 
@@ -63,25 +50,26 @@ class NixRawIO (BaseRawIO):
         unit_id = ""
         for bl in self.file.blocks:
             # print("\t\t u_block: {}".format(bl))
-            for mt in bl.multi_tags:
-                if mt.type == "neo.spiketrain":
-                    for usrc in mt.sources:
-                        if usrc.type == "neo.unit":
-                            unit_name = usrc.name
-                            # print("\t\t unit_name: {}".format(unit_name))
-                            unit_id = usrc.id
-                            # print("\t\t unit_id: {}".format(unit_id))
-                            pass
-            for da in bl.data_arrays:
-                if da.type == "neo.waveforms":
-                    wf_units = da.unit
-                    wf_gain = 0
-                    wf_offset = 0.
-                    # print("\t\t :wf_offset {}".format(wf_offset))
-                    wf_left_sweep = 10 # what is left sweep
-                    wf_sampling_rate = 1/da.dimensions[2].sampling_interval
-                    unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
-                                          wf_offset, wf_left_sweep, wf_sampling_rate))
+            for seg in bl.groups:
+                for mt in seg.multi_tags:
+                    if mt.type == "neo.spiketrain":
+                        for usrc in mt.sources:
+                            if usrc.type == "neo.unit":
+                                unit_name = usrc.name
+                                # print("\t\t unit_name: {}".format(unit_name))
+                                unit_id = usrc.id
+                                # print(unit_id)
+                                pass
+                        wf_units = mt.features[0].data.unit
+                        wf_gain = 0
+                        wf_offset = 0.
+                        if "left_sweep" in mt.features[0].data.metadata:
+                            wf_left_sweep = mt.features[0].data.metadata["left_sweep"]  # what is left sweep
+                        else:
+                            wf_left_sweep = 0
+                        wf_sampling_rate = 1 / mt.features[0].data.dimensions[2].sampling_interval
+                        unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
+                                              wf_offset, wf_left_sweep, wf_sampling_rate))
         unit_channels = np.array(unit_channels, dtype=_unit_channel_dtype)
         # print("\t\t unit_channels: {}".format(unit_channels))
 
@@ -153,6 +141,8 @@ class NixRawIO (BaseRawIO):
 
     def _get_signal_size(self, block_index, seg_index, channel_indexes):   # Done!
         size = 0
+        if channel_indexes is None:
+            channel_indexes = []
         for ch in channel_indexes:
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
@@ -197,39 +187,28 @@ class NixRawIO (BaseRawIO):
                     print("Skip", da.metadata["neo_name"])
         raw_signals = np.array(raw_signals_list)
         print(np.shape(raw_signals))
+        print(raw_signals)
         return raw_signals
 
     def _spike_count(self, block_index, seg_index, unit_index):         # Done!
         count = 0
-        unit_list = []
-        for ch in self.file.blocks[block_index].sources:
-            for unit in ch.sources:
-                if unit.type == "neo.unit":
-                    unit_list.append(unit)
-        print("\t\t unit_channels: {}".format(self.header['unit_channels']))
+        head_id = self.header['unit_channels'][unit_index][1]
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
             for src in mt.sources:
                 if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
-                    for u in unit_index:
-                        if unit_list[u].id == src.id:
-                            count += 1
+                    if head_id == src.id:
+                        count += 1
         return count
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):  # Done!
         spike_timestamps = []
-        unit_list = []
-        for ch in self.file.blocks[block_index].sources:
-            for unit in ch.sources:
-                if unit.type == "neo.unit":
-                    unit_list.append(unit)
-        print("\t\t unit_channels: {}".format(self.header['unit_channels'][0]))
+        head_id = self.header['unit_channels'][unit_index][1]  # not going to work unit_index can be list or array
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
             for src in mt.sources:
                 if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
-                    for u in unit_index:
-                        if unit_list[u].id == src.id:
-                            st_times = mt.positions
-                            spike_timestamps.append(st_times)
+                    if head_id == src.id:
+                        st_times = mt.positions
+                        spike_timestamps.append(st_times)
         spike_timestamps = np.array(spike_timestamps)
 
         if t_start is not None or t_stop is not None:
@@ -241,14 +220,7 @@ class NixRawIO (BaseRawIO):
 
     def _rescale_spike_timestamp(self, spike_timestamps, dtype):  # Done!
         spike_times = spike_timestamps.astype(dtype)
-        sr = 0
-        # TODO: sr = self.header['signal_channels'][]
-        for bl in self.file.blocks:
-            for da in bl.data_arrays:
-                if da.type == "neo.analogsignal":
-                    for di in da.dimensions:
-                        sr = 1 / di.sampling_interval
-                        break
+        sr= self.header['signal_channels'][0][2]
         spike_times *= sr
             # nix use sampl interval instead of sr
             # sr = 1 / da.dimensions[0].sampling_interval
@@ -262,10 +234,15 @@ class NixRawIO (BaseRawIO):
                 waveforms.append(da[t_start:t_stop])
         if self.file.blocks[block_index].groups[seg_index].multi_tags.type == "neo.spiketrains":
             nb_spike = enumerate(self.file.blocks[block_index].groups[seg_index].multi_tags)
-        nb_channel = enumerate(self.file.blocks[block_index].groups[seg_index].multi_tags)
+        nb_channel = enumerate(self.header[''])
         nb_sample = 0  # what is sample?
         raw_waveforms = np.array(waveforms)
         raw_waveforms.reshape(nb_spike, nb_channel, nb_sample)
+        if t_start is not None or t_stop is not None:
+            lim0 = t_start
+            lim1 = t_stop
+            mask = (raw_waveforms >= lim0) & (raw_waveforms <= lim1)
+            raw_waveforms = raw_waveforms[mask]
         return raw_waveforms
 
     def _event_count(self, block_index, seg_index, event_channel_index):  # Done!

@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="597ab500-10d4-451d-b04a-ac928513cc36" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NixRawIO.py" beforeDir="false" afterPath="$PROJECT_DIR$/NixRawIO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NixRawIO/ReadNeoRawIO.py" beforeDir="false" afterPath="$PROJECT_DIR$/NixRawIO/ReadNeoRawIO.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TestNixRawIO.py" beforeDir="false" afterPath="$PROJECT_DIR$/TestNixRawIO.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mkfile.py" beforeDir="false" afterPath="$PROJECT_DIR$/mkfile.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/neoraw.nix" beforeDir="false" afterPath="$PROJECT_DIR$/neoraw.nix" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_nixrawio.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_nixrawio.py" afterDir="false" />
     </list>
@@ -20,8 +21,8 @@
       <file leaf-file-name="mkfile.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mkfile.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="32" column="33" selection-start-line="32" selection-start-column="24" selection-end-line="32" selection-end-column="33" />
+            <state relative-caret-position="-61">
+              <caret line="36" column="42" lean-forward="true" selection-start-line="36" selection-start-column="42" selection-end-line="36" selection-end-column="59" />
               <folding>
                 <element signature="e#0#169#0" expanded="true" />
               </folding>
@@ -29,25 +30,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NixRawIO.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="NixRawIO.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/NixRawIO.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="178" column="35" lean-forward="true" selection-start-line="178" selection-start-column="35" selection-end-line="178" selection-end-column="35" />
+            <state relative-caret-position="389">
+              <caret line="189" column="25" selection-start-line="189" selection-start-column="25" selection-end-line="189" selection-end-column="25" />
               <folding>
                 <element signature="e#0#64#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TestNixRawIO.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="2" column="2" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="2" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -56,10 +45,22 @@
       <file leaf-file-name="test_nixrawio.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test_nixrawio.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="16" column="85" selection-start-line="16" selection-start-column="85" selection-end-line="16" selection-end-column="85" />
+            <state relative-caret-position="126">
+              <caret line="7" column="24" lean-forward="true" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="24" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TestNixRawIO.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="11" column="38" selection-start-line="11" selection-start-column="38" selection-end-line="11" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -76,7 +77,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_spike_raw_waveforms</find>
       <find>_group_signal_channel_characteristics</find>
       <find>_get_internal_mask</find>
       <find>sampling</find>
@@ -99,13 +99,14 @@
       <find>unit_name</find>
       <find>Unit</find>
       <find>event</find>
-      <find>print</find>
       <find>sampling_rate</find>
       <find>dimension</find>
       <find>what is</find>
       <find>ch</find>
       <find>2ee8af7b2e2640e29b2ba69ea7664a85</find>
       <find>metadata</find>
+      <find>unit_channels</find>
+      <find>print</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -126,10 +127,11 @@
         <option value="$PROJECT_DIR$/ReadNeoRawIO.py" />
         <option value="$PROJECT_DIR$/NeoMapping.py" />
         <option value="$PROJECT_DIR$/NixRawIO/NixRawIO.py" />
-        <option value="$PROJECT_DIR$/test_nixrawio.py" />
         <option value="$PROJECT_DIR$/mkfile.py" />
-        <option value="$PROJECT_DIR$/NixRawIO.py" />
+        <option value="$PROJECT_DIR$/NixRawIO/ReadNeoRawIO.py" />
         <option value="$PROJECT_DIR$/TestNixRawIO.py" />
+        <option value="$PROJECT_DIR$/test_nixrawio.py" />
+        <option value="$PROJECT_DIR$/NixRawIO.py" />
       </list>
     </option>
   </component>
@@ -145,7 +147,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -157,6 +158,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -187,7 +189,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.TestNixRawIO">
+  <component name="RunManager" selected="Python tests.Unittests in test_nixrawio.py">
     <configuration name="NixRawIO" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Nixneo" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -206,6 +208,24 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+    <configuration name="ReadNeoRawIO" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Nixneo" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/NixRawIO" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NixRawIO/ReadNeoRawIO.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
     <configuration name="TestNixRawIO" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Nixneo" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -219,24 +239,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestNixRawIO.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="mkfile" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Nixneo" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mkfile.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -277,16 +279,16 @@
       <item itemvalue="Python.NixRawIO" />
       <item itemvalue="Python.TestNixRawIO" />
       <item itemvalue="Python tests.Unittests in test_nixrawio.py" />
-      <item itemvalue="Python.mkfile" />
+      <item itemvalue="Python.ReadNeoRawIO" />
       <item itemvalue="Python.test_nixrawio" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.TestNixRawIO" />
-        <item itemvalue="Python.NixRawIO" />
-        <item itemvalue="Python.mkfile" />
         <item itemvalue="Python tests.Unittests in test_nixrawio.py" />
+        <item itemvalue="Python.NixRawIO" />
+        <item itemvalue="Python.TestNixRawIO" />
         <item itemvalue="Python.test_nixrawio" />
+        <item itemvalue="Python.ReadNeoRawIO" />
       </list>
     </recent_temporary>
   </component>
@@ -304,34 +306,34 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.22 at 16h 00m 39s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 08m 48s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.22 at 16h 04m 41s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 09m 45s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.22 at 16h 45m 12s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 10m 55s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 12h 47m 34s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 16m 36s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 14h 19m 53s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 17m 16s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 14h 20m 05s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 17m 30s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 14h 23m 21s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 18m 12s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 14h 25m 35s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 18m 40s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 14h 26m 35s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 21m 39s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.24 at 14h 26m 38s.xml">
+    <history-entry file="Unittests_in_test_nixrawio_py - 2018.05.25 at 18h 21m 54s.xml">
       <configuration name="Unittests in test_nixrawio.py" configurationId="tests" />
     </history-entry>
   </component>
@@ -344,13 +346,13 @@
       <window_info anchor="right" id="R Packages" order="4" />
       <window_info anchor="right" id="R Graphics" order="3" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.37843552" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.2078059" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.37843552" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32911393" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39978904" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39978904" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -360,9 +362,9 @@
       <window_info anchor="bottom" id="Find" order="1" />
     </layout>
     <layout-to-restore>
-      <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14303406" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -370,15 +372,15 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="R Graphics" order="3" />
       <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.37843552" />
-      <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="R Packages" order="4" />
-      <window_info anchor="bottom" id="Python Console" order="8" weight="0.2078059" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39978904" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32911393" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Python Console" order="8" weight="0.2078059" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -398,7 +400,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/readNix.py" />
     <entry file="file://$PROJECT_DIR$/NixRawIO.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
@@ -562,42 +563,49 @@
     <entry file="file://$PROJECT_DIR$/Neomapping.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/test_nixrawio.py">
+    <entry file="file://$PROJECT_DIR$/NixRawIO/ReadNeoRawIO.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="16" column="85" selection-start-line="16" selection-start-column="85" selection-end-line="16" selection-end-column="85" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="270">
+          <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="86" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mkfile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="32" column="33" selection-start-line="32" selection-start-column="24" selection-end-line="32" selection-end-column="33" />
+        <state relative-caret-position="-61">
+          <caret line="36" column="42" lean-forward="true" selection-start-line="36" selection-start-column="42" selection-end-line="36" selection-end-column="59" />
           <folding>
             <element signature="e#0#169#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/NixRawIO.py">
+    <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="178" column="35" lean-forward="true" selection-start-line="178" selection-start-column="35" selection-end-line="178" selection-end-column="35" />
+        <state relative-caret-position="198">
+          <caret line="11" column="38" selection-start-line="11" selection-start-column="38" selection-end-line="11" selection-end-column="38" />
           <folding>
-            <element signature="e#0#64#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
+    <entry file="file://$PROJECT_DIR$/test_nixrawio.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" column="2" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="2" />
+        <state relative-caret-position="126">
+          <caret line="7" column="24" lean-forward="true" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="24" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NixRawIO.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="389">
+          <caret line="189" column="25" selection-start-line="189" selection-start-column="25" selection-end-line="189" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#64#0" expanded="true" />
           </folding>
         </state>
       </provider>

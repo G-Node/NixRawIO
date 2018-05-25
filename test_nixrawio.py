@@ -14,7 +14,7 @@ class TestNixRawIO(BaseTestRawIO, unittest.TestCase, ):
 
 
 if __name__ == "__main__":
-    testfilepath = "/tmp/files_for_testing_neo/nix/" #  cannot open nonexistent file?
+    testfilepath = "/tmp/files_for_testing_neo/nix/"
     os.makedirs(testfilepath, exist_ok=True)
     shutil.copy(testfname, testfilepath)
     unittest.main()
