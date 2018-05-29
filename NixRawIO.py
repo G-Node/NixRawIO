@@ -22,15 +22,26 @@ class NixRawIO (BaseRawIO):
         self.file = nix.File.open(self.filename, nix.FileMode.ReadOnly)
         sig_channels = []
         for bl in self.file.blocks:
-            for didx, da in enumerate(bl.data_arrays):
+            didx = 0
+
+            for da in bl.data_arrays:
                 if da.type == "neo.analogsignal":
                     # print(didx, da)
                     # for dsrc in da.sources: # channelindex
                         # ch_name = dsrc.metadata["neo_name"] or dsrc.sources.metadata... ?
                         # for csrc in dsrc.sources: # channelindex children/ unit
-                            # if csrc.type == "neo.channelindex":
-                    ch_name = da.metadata["neo_name"] + " Signal " + chr(ord("a") + didx)
-                    chan_id = da.metadata["neo_name"][-1] # not sure if chan_id should look like that
+                            # if csrc.type == "neo.channelindex
+                    chan_id = str(da.metadata["neo_name"][-1]) +str(didx)
+                    nixname = da.name
+                    nixidx = int(nixname.split('.')[-1])
+                    src = da.sources[0].sources[nixidx]
+                    chan_id = src.metadata['channel_id']
+                    ch_name = src.metadata['neo_name']
+                    #print("id is", chan_id, "name is", ch_name)
+                    #print('-------------')
+
+                    # print(da.sources[0].sources[didx].metadata['channel_id'])
+                    # print(da.sources[0].sources[didx].metadata['neo_name'])
                     units = da.unit
                     # print("\t\t units: {}".format(units))
                     dtype = da.dtype
@@ -42,6 +53,7 @@ class NixRawIO (BaseRawIO):
                     gain = 1
                     offset = 0.
                     sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
+                    didx += 1
         sig_channels = np.array(sig_channels, dtype=_signal_channel_dtype)
         # print("\t\t sig_channel: {}".format(sig_channels))
 
@@ -152,6 +164,8 @@ class NixRawIO (BaseRawIO):
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):  # Done!
         sig_t_start = 0
+        if channel_indexes is None:
+            channel_indexes = []
         for ch in channel_indexes:
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
@@ -160,34 +174,40 @@ class NixRawIO (BaseRawIO):
                     break
         return sig_t_start
 
-    def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # Done!
+    def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # chan must be list!
         if i_start is None:
             i_start = 0
+        if i_stop is None:
+            i_stop = min(len(da) for da in self.file.blocks[block_index].groups[seg_index].data_arrays
+                         if da.type == 'neo.analogsignal')
+        chan_list = []
+        for chan in self.file.blocks[block_index].sources:
+            if chan.type == "neo.channelindex":
+                chan_list.append(chan)
         if channel_indexes is None:
-            chan_list = []
-            for chan in self.file.blocks[block_index].sources:
-                if chan.type == "neo.channelindex":
-                    chan_list.append(chan)
-
-            nb_chan = []
             for i, data in enumerate(chan_list):
+                nb_chan = []
                 nb_chan.append(i)
         else:
-            nb_chan = channel_indexes
+            keep =[]
+            for ch in channel_indexes:
+                keep.append(ch <= len(chan_list) - 1)
+            nb_chan = [i for (i, v) in zip(channel_indexes, keep) if v]
 
         raw_signals_list = []
         for ch in nb_chan:
+            ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
-                    i_stop = min(len(da) for da in self.file.blocks[block_index].groups[seg_index].data_arrays
-                                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name)
                     raw_signals_list.append(da[i_start:i_stop])
-                else:
-                    print("Skip", da.metadata["neo_name"])
+                #else:
+                    #print("Skip", da.metadata["neo_name"])
         raw_signals = np.array(raw_signals_list)
-        print(np.shape(raw_signals))
-        print(raw_signals)
+        np.transpose(raw_signals)
+        #print(raw_signals.shape)
+        #print(np.shape(raw_signals))
+        #print(raw_signals)
         return raw_signals
 
     def _spike_count(self, block_index, seg_index, unit_index):         # Done!
@@ -229,15 +249,14 @@ class NixRawIO (BaseRawIO):
     def _get_spike_raw_waveforms(self, block_index, seg_index, unit_index, t_start, t_stop):
         # this must return a 3D numpy array (nb_spike, nb_channel, nb_sample)
         waveforms = []
-        for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
-            if da.type == "neo.waveforms":
-                waveforms.append(da[t_start:t_stop])
-        if self.file.blocks[block_index].groups[seg_index].multi_tags.type == "neo.spiketrains":
-            nb_spike = enumerate(self.file.blocks[block_index].groups[seg_index].multi_tags)
-        nb_channel = enumerate(self.header[''])
-        nb_sample = 0  # what is sample?
+        for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
+            if mt.type == "neo.spiketrain":
+                if mt.features[0].data.type == "neo.waveforms":
+                    waveforms.append(mt.features[0].data)
         raw_waveforms = np.array(waveforms)
-        raw_waveforms.reshape(nb_spike, nb_channel, nb_sample)
+        rs = raw_waveforms.shape
+
+        raw_waveforms.reshape(rs[1], rs[2], rs[3])
         if t_start is not None or t_stop is not None:
             lim0 = t_start
             lim1 = t_stop

@@ -25,18 +25,20 @@ for idx in range(nsegments):
     # not sure if it is the general case
     data_b = np.random.random((1200, 3))
     data_c = np.random.random((8000, 5))
-    nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1]
+    nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1] # which one is correct
     nchannels = 3
 
-    sampling_rate = pq.Quantity(10, "Hz")
+    sampling_rate = pq.Quantity(1, "Hz")
 
     indexes = np.arange(nchannels)
-    for ch in range(nchannels):
-        chx = ChannelIndex(name="channel-{}".format(idx + ch),
+    for idx, signal in enumerate([data_a, data_b, data_c]):
+        indexes = np.arange(signal.shape[1])
+        chx = ChannelIndex(name="channel-{}".format(idx),
                            index=indexes,
-                           channel_names=[chr(ord("a") + i) for i in indexes],
-                           channel_ids=indexes + 1)
-
+                           channel_names=["S" + str(idx) + chr(ord("a") + i) for i in indexes],
+                           channel_ids=idx * 100 + indexes + 1)
+        print(chx.channel_ids)
+        print("index is", chx.index)
         block.channel_indexes.append(chx)
 
     for didx, data in enumerate((data_a, data_b, data_c)):
