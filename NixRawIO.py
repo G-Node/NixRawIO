@@ -45,8 +45,8 @@ class NixRawIO (BaseRawIO):
                     #print('-------------')
                     # print(da.sources[0].sources[didx].metadata['channel_id'])
                     # print(da.sources[0].sources[didx].metadata['neo_name'])
-                    units = da.unit
-                    dtype = da.dtype
+                    units = str(da.unit)
+                    dtype = str(da.dtype)
                     sr = 1 / da.dimensions[0].sampling_interval
                     group_id = 0
                     for id, name in enumerate(channel_name):
@@ -311,3 +311,4 @@ class NixRawIO (BaseRawIO):
     def _rescale_epoch_duration(self, raw_duration, dtype):  # Done!
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations
+

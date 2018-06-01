@@ -9,11 +9,10 @@ class NixIOfr(NixRawIO, BaseFromRaw):
     (Cerebus) recording system.
     """
     name = 'Nix IO'
-    _prefered_signal_group_mode = 'split-all'
 
     def __init__(self, filename):
         NixRawIO.__init__(self, filename=filename)
-        BaseFromRaw.__init__(self, filename=filename) # , group_mode = 'group-by-same-units'
+        BaseFromRaw.__init__(self, filename=filename, group_mode = 'group-by-same-units') #
 
 
 localfile = '/home/choi/PycharmProjects/Nixneo/neoraw.nix'
