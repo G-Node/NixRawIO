@@ -20,10 +20,14 @@ class NixRawIO (BaseRawIO):
     def _parse_header(self):
 
         self.file = nix.File.open(self.filename, nix.FileMode.ReadOnly)
+        channel_name = []
+        for blk in self.file.blocks:
+            for ch, src in enumerate(blk.sources):
+                channel_name.append(src.name)
+
         sig_channels = []
         for bl in self.file.blocks:
             didx = 0
-
             for da in bl.data_arrays:
                 if da.type == "neo.analogsignal":
                     # print(didx, da)
@@ -31,7 +35,7 @@ class NixRawIO (BaseRawIO):
                         # ch_name = dsrc.metadata["neo_name"] or dsrc.sources.metadata... ?
                         # for csrc in dsrc.sources: # channelindex children/ unit
                             # if csrc.type == "neo.channelindex
-                    chan_id = str(da.metadata["neo_name"][-1]) +str(didx)
+                    #chan_id = str(da.metadata["neo_name"][-1]) +str(didx)
                     nixname = da.name
                     nixidx = int(nixname.split('.')[-1])
                     src = da.sources[0].sources[nixidx]
@@ -39,17 +43,15 @@ class NixRawIO (BaseRawIO):
                     ch_name = src.metadata['neo_name']
                     #print("id is", chan_id, "name is", ch_name)
                     #print('-------------')
-
                     # print(da.sources[0].sources[didx].metadata['channel_id'])
                     # print(da.sources[0].sources[didx].metadata['neo_name'])
                     units = da.unit
-                    # print("\t\t units: {}".format(units))
                     dtype = da.dtype
-                    # print("\t\t dtype: {}".format(dtype))
                     sr = 1 / da.dimensions[0].sampling_interval
-                     # print("\t\t sr: {}".format(sr))
-                    group_id = 0  # set a list if sr already same group_id if not same, set up another
-                    # print("\t\t group_id: {}".format(group_id))
+                    group_id = 0
+                    for id, name in enumerate(channel_name):
+                        if name == da.sources[0].name:
+                            group_id = id
                     gain = 1
                     offset = 0.
                     sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
@@ -156,6 +158,7 @@ class NixRawIO (BaseRawIO):
         if channel_indexes is None:
             channel_indexes = []
         for ch in channel_indexes:
+            ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
@@ -167,6 +170,7 @@ class NixRawIO (BaseRawIO):
         if channel_indexes is None:
             channel_indexes = []
         for ch in channel_indexes:
+            ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
@@ -204,7 +208,10 @@ class NixRawIO (BaseRawIO):
                 #else:
                     #print("Skip", da.metadata["neo_name"])
         raw_signals = np.array(raw_signals_list)
-        np.transpose(raw_signals)
+        raw_signals = np.transpose(raw_signals)
+        #sig_name = self.header['signal_channels'][2][1]
+        #print(sig_name)
+        #print(self.file.blocks[block_index].groups[seg_index].data_arrays)
         #print(raw_signals.shape)
         #print(np.shape(raw_signals))
         #print(raw_signals)
