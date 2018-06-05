@@ -41,10 +41,6 @@ class NixRawIO (BaseRawIO):
                     src = da.sources[0].sources[nixidx]
                     chan_id = src.metadata['channel_id']
                     ch_name = src.metadata['neo_name']
-                    #print("id is", chan_id, "name is", ch_name)
-                    #print('-------------')
-                    # print(da.sources[0].sources[didx].metadata['channel_id'])
-                    # print(da.sources[0].sources[didx].metadata['neo_name'])
                     units = str(da.unit)
                     dtype = str(da.dtype)
                     sr = 1 / da.dimensions[0].sampling_interval
@@ -182,24 +178,47 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # chan must be list!
         # now only channel_indexes with same group_id is allowed!!!!!! is it good?
+
         if i_start is None:
             i_start = 0
         if i_stop is None:
-            i_stop = min(len(da) for da in self.file.blocks[block_index].groups[seg_index].data_arrays
+            da_list = []
+            print(da for da in self.file.blocks[block_index].groups[seg_index].data_arrays
                          if da.type == 'neo.analogsignal')
+            for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
+                if da.type == 'neo.analogsignal':
+                    da_list.append(da.size)
+            for c in channel_indexes:
+                i_stop = da_list[c]
+                pass
+            # supposed all data in same ChannelIndex have same size
         chan_list = []
         for chan in self.file.blocks[block_index].sources:
             if chan.type == "neo.channelindex":
                 chan_list.append(chan)
         if channel_indexes is None:
+            nb_chan = []
             for i, data in enumerate(chan_list):
-                nb_chan = []
                 nb_chan.append(i)
         else:
             keep =[]
             for ch in channel_indexes:
                 keep.append(ch <= len(chan_list) - 1)
             nb_chan = [i for (i, v) in zip(channel_indexes, keep) if v]
+
+        nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
+        # delete the line above if channel_index is ChannelIndex instead of header
+        same_group = []
+        for idx, ch in enumerate(self.header['signal_channels']):
+            if self.header['signal_channels'][idx]['group_id'] == nb_chan:
+                same_group.append(idx)  # index start from 0
+
+        id_in_group = []
+        for x in channel_indexes:
+            if x not in same_group:
+                continue
+            a = same_group.index(x)
+            id_in_group.append(a)
 
         raw_signals_list = []
         for ch in nb_chan:
@@ -211,11 +230,8 @@ class NixRawIO (BaseRawIO):
                 #else:
                     #print("Skip", da.metadata["neo_name"])
         raw_signals = np.array(raw_signals_list)
+        raw_signals = raw_signals[id_in_group, :]
         raw_signals = np.transpose(raw_signals)
-        #sig_name = self.header['signal_channels'][2][1]
-        #print(sig_name)
-        #print(self.file.blocks[block_index].groups[seg_index].data_arrays)
-        #print(raw_signals.shape)
         #print(np.shape(raw_signals))
         #print(raw_signals)
         return raw_signals

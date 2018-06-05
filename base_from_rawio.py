@@ -22,7 +22,7 @@ blk = reader.read_block(0) # seems like only CI2 is read (5 indexes)
 print(blk)
 #print(blk.name)
 #print(blk.segments)
-print(blk.segments[0].analogsignals[0])
+print('-----------------',blk.segments[0].analogsignals)
 #for asig in blk.segments[0].analogsignals:
     #print(asig.name)
     #print(asig.shape)
