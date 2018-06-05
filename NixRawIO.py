@@ -51,7 +51,7 @@ class NixRawIO (BaseRawIO):
                     group_id = 0
                     for id, name in enumerate(channel_name):
                         if name == da.sources[0].name:
-                            group_id = id
+                            group_id = id # very important! group_id use to store channel groups!!!
                     gain = 1
                     offset = 0.
                     sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
@@ -157,7 +157,8 @@ class NixRawIO (BaseRawIO):
         size = 0
         if channel_indexes is None:
             channel_indexes = []
-        for ch in channel_indexes:
+        ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
+        for ch in ch_list:
             ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
@@ -169,7 +170,8 @@ class NixRawIO (BaseRawIO):
         sig_t_start = 0
         if channel_indexes is None:
             channel_indexes = []
-        for ch in channel_indexes:
+        ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
+        for ch in ch_list:
             ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
@@ -179,6 +181,7 @@ class NixRawIO (BaseRawIO):
         return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # chan must be list!
+        # now only channel_indexes with same group_id is allowed!!!!!! is it good?
         if i_start is None:
             i_start = 0
         if i_stop is None:
