@@ -12,7 +12,12 @@ reader.parse_header()
 r = reader.get_analogsignal_chunk(0,0, 0 , None, [4,5,6,7,8])
 #print("ch inx", reader.get_group_channel_indexes) # why all is unique? dtype and sr same but group id should be different!
 #reader._check_common_characteristics([1,2,3,4])
-#print("ch id", reader.header['signal_channels']['sampling_rate'])
-#print("dtype", reader.header['signal_channels']['dtype'])
-#print(reader)
 print(r)
+
+print("xxxxxxxxxxxxxxx", reader.get_group_channel_indexes()) # successfully being grouped
+xxx = [[0], [1,2,3], [4, 5, 6, 7, 8]]
+for x in xxx:
+    print(x)
+
+ind_within, = np.nonzero(xxx)
+print('kkk',ind_within) # returns [0 1 2] basefrom should return only 3 CI
