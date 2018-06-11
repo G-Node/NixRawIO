@@ -42,7 +42,12 @@ for idx in range(nsegments):
         block.channel_indexes.append(chx)
 
     for didx, data in enumerate((data_a, data_b, data_c)):
-        asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
+        if didx == 1:
+            asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
+                                signal=data, units="mV",
+                                sampling_rate=sampling_rate)
+        else:
+            asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
                             signal=data, units="mV",
                             sampling_rate=sampling_rate)
         seg.analogsignals.append(asig)
