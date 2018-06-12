@@ -44,7 +44,7 @@ for idx in range(nsegments):
     for didx, data in enumerate((data_a, data_b, data_c)):
         if didx == 1:
             asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
-                                signal=data, units="mV",
+                                signal=data, units="V",
                                 sampling_rate=sampling_rate)
         else:
             asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),

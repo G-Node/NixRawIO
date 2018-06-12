@@ -8,6 +8,7 @@ class NixIOfr(NixRawIO, BaseFromRaw):
 
     name = 'Nix IO'
     _prefered_signal_group_mode = 'group-by-same-units'
+    _prefered_units_group_mode = 'all-in-one'
 
     def __init__(self, filename):
         NixRawIO.__init__(self, filename=filename)
@@ -28,8 +29,9 @@ print(blk)
 #print("xxxxxxxxxxxxxxxxxxxxxxxxx", blk.segments[0].units)
 for chx in blk.channel_indexes:
     print(chx.name)
-    #print(chx.channel_ids)
-    #print(chx.channel_names)
+    print(chx.channel_ids)
+    print(chx.channel_names)
+    print("index: {}:".format(chx.index))
     #for u in chx.units:
         #print(u.spiketrains)
 print(blk.segments[0].epochs) # epoch is missing, duration/times
