@@ -25,7 +25,7 @@ class NixRawIO (BaseRawIO):
             for ch, src in enumerate(blk.sources):
                 channel_name.append(src.name)
 
-        sig_channels = []
+        sig_channels = []  # should I loop through segments
         for bl in self.file.blocks:
             didx = 0
             for da in bl.data_arrays:
@@ -65,13 +65,13 @@ class NixRawIO (BaseRawIO):
                     if mt.type == "neo.spiketrain":
                         for usrc in mt.sources:
                             if usrc.type == "neo.unit":
-                                unit_name = usrc.name
+                                unit_name = usrc.metadata['neo_name']
                                 # print("\t\t unit_name: {}".format(unit_name))
                                 unit_id = usrc.id
                                 # print(unit_id)
                                 pass
                         wf_units = mt.features[0].data.unit
-                        wf_gain = 0
+                        wf_gain = 1
                         wf_offset = 0.
                         if "left_sweep" in mt.features[0].data.metadata:
                             wf_left_sweep = mt.features[0].data.metadata["left_sweep"]  # what is left sweep
@@ -89,14 +89,14 @@ class NixRawIO (BaseRawIO):
         for bl in self.file.blocks:
             for mt in bl.multi_tags:
                 if mt.type == "neo.event":
-                    ev_name = mt.name
+                    ev_name = mt.metadata['neo_name']
                     # print("\t\t ev_name: {}".format(ev_name))
                     ev_id = event_count
                     event_count += 1
                     ev_type = "event"
                     event_channels.append((ev_name, ev_id, ev_type))
                 if mt.type == "neo.epoch":
-                    ep_name = mt.name
+                    ep_name = mt.metadata['neo_name']
                     ep_id = epoch_count
                     epoch_count += 1
                     ep_type = "epoch"
@@ -113,15 +113,15 @@ class NixRawIO (BaseRawIO):
 
         self._generate_minimal_annotations()
 
-        ac = 0  # cannot integrate into for loop because objects are not iterable
-        stc = 0
-        ec = 0
 
         for block_index in range(len(self.file.blocks)):
             bl_ann = self.raw_annotations['blocks'][block_index]
             # print("\t\t bl_ann: {}".format(bl_ann))
             seg_range = [len(bl.groups) for bl in self.file.blocks]
             for seg_index in range(seg_range[block_index]):
+                ac = 0
+                stc = 0
+                ec = 0
                 seg_ann = bl_ann['segments'][seg_index]
                 for da in self.file.blocks[block_index].data_arrays:
                     if da.type == "neo.analogsignal":
@@ -190,7 +190,7 @@ class NixRawIO (BaseRawIO):
                     da_list.append(da.size)
             for c in channel_indexes:
                 i_stop = da_list[c]
-                pass
+                break
             # supposed all data in same ChannelIndex have same size
         chan_list = []
         for chan in self.file.blocks[block_index].sources:
@@ -219,7 +219,6 @@ class NixRawIO (BaseRawIO):
                 continue
             a = same_group.index(x)
             id_in_group.append(a)
-
         raw_signals_list = []
         for ch in nb_chan:
             ch = int(ch)
@@ -227,8 +226,7 @@ class NixRawIO (BaseRawIO):
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
                     raw_signals_list.append(da[i_start:i_stop])
-                #else:
-                    #print("Skip", da.metadata["neo_name"])
+
         raw_signals = np.array(raw_signals_list)
         raw_signals = raw_signals[id_in_group, :]
         raw_signals = np.transpose(raw_signals)
@@ -281,13 +279,13 @@ class NixRawIO (BaseRawIO):
                     waveforms.append(mt.features[0].data)
         raw_waveforms = np.array(waveforms)
         rs = raw_waveforms.shape
+        # raw_waveforms = raw_waveforms.reshape(rs[1], rs[2], rs[3])
 
-        raw_waveforms.reshape(rs[1], rs[2], rs[3])
         if t_start is not None or t_stop is not None:
             lim0 = t_start
             lim1 = t_stop
             mask = (raw_waveforms >= lim0) & (raw_waveforms <= lim1)
-            raw_waveforms = raw_waveforms[mask]
+            raw_waveforms = np.where(mask, raw_waveforms, np.nan)
         return raw_waveforms
 
     def _event_count(self, block_index, seg_index, event_channel_index):  # Done!

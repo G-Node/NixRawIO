@@ -17,23 +17,25 @@ class NixIOfr(NixRawIO, BaseFromRaw):
 
 localfile = '/home/choi/PycharmProjects/Nixneo/neoraw.nix'
 reader = NixIOfr(filename=localfile)
-# r = reader._get_analogsignal_chunk(0,0,0, None, [0])
-blk = reader.read_block(0) # seems like only CI2 is read (5 indexes)
+blk = reader.read_block(0, load_waveforms= True)
 print(blk)
 #print(blk.name)
 #print(blk.segments)
-#print('-----------------',blk.segments[0].analogsignals)
+#print('-----------------',blk.segments[0].irregularlysampledsignals)
 #for asig in blk.segments[0].analogsignals:
-    #print(asig.name)
+    #print("asigname", asig.name)
     #print(asig.shape)
-#print("xxxxxxxxxxxxxxxxxxxxxxxxx", blk.segments[0].units)
 for chx in blk.channel_indexes:
     print(chx.name)
-    print(chx.channel_ids)
-    print(chx.channel_names)
-    print("index: {}:".format(chx.index))
-    #for u in chx.units:
-        #print(u.spiketrains)
-print(blk.segments[0].epochs) # epoch is missing, duration/times
-x = reader._make_signal_channel_subgroups(np.array([0,1,2,3,4,5,6,7,8])).items()
-print(x)
+    #print(chx.channel_ids)
+    #print(chx.channel_names)
+    #print("index: {}:".format(chx.index))
+    for u in chx.units:
+        print(u.name)
+        print(u.spiketrains)
+        print(u.spiketrains[0].times)
+        print(u.spiketrains[0].t_start)
+        print(u.spiketrains[0].t_stop)
+print(blk.segments[0].events[0].name)
+
+
