@@ -24,34 +24,26 @@ class NixRawIO (BaseRawIO):
         for blk in self.file.blocks:
             for ch, src in enumerate(blk.sources):
                 channel_name.append(src.name)
-
         sig_channels = []  # should I loop through segments
         for bl in self.file.blocks:
-            didx = 0
-            for da in bl.data_arrays:
-                if da.type == "neo.analogsignal":
-                    # print(didx, da)
-                    # for dsrc in da.sources: # channelindex
-                        # ch_name = dsrc.metadata["neo_name"] or dsrc.sources.metadata... ?
-                        # for csrc in dsrc.sources: # channelindex children/ unit
-                            # if csrc.type == "neo.channelindex
-                    #chan_id = str(da.metadata["neo_name"][-1]) +str(didx)
-                    nixname = da.name
-                    nixidx = int(nixname.split('.')[-1])
-                    src = da.sources[0].sources[nixidx]
-                    chan_id = src.metadata['channel_id']
-                    ch_name = src.metadata['neo_name']
-                    units = str(da.unit)
-                    dtype = str(da.dtype)
-                    sr = 1 / da.dimensions[0].sampling_interval
-                    group_id = 0
-                    for id, name in enumerate(channel_name):
-                        if name == da.sources[0].name:
-                            group_id = id # very important! group_id use to store channel groups!!!
-                    gain = 1
-                    offset = 0.
-                    sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
-                    didx += 1
+            for seg in bl.groups:
+                for da in seg.data_arrays:
+                    if da.type == "neo.analogsignal":
+                        nixname = da.name
+                        nixidx = int(nixname.split('.')[-1])
+                        src = da.sources[0].sources[nixidx]
+                        chan_id = src.metadata['channel_id']
+                        ch_name = src.metadata['neo_name']
+                        units = str(da.unit)
+                        dtype = str(da.dtype)
+                        sr = 1 / da.dimensions[0].sampling_interval
+                        group_id = 0
+                        for id, name in enumerate(channel_name):
+                            if name == da.sources[0].name:
+                                group_id = id # very important! group_id use to store channel groups!!!
+                        gain = 1
+                        offset = 0.
+                        sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
         sig_channels = np.array(sig_channels, dtype=_signal_channel_dtype)
         # print("\t\t sig_channel: {}".format(sig_channels))
 
@@ -178,14 +170,12 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # chan must be list!
         # now only channel_indexes with same group_id is allowed!!!!!! is it good?
-
+        print(channel_indexes)
         if i_start is None:
             i_start = 0
         if i_stop is None:
             da_list = []
-            print(da for da in self.file.blocks[block_index].groups[seg_index].data_arrays
-                         if da.type == 'neo.analogsignal')
-            for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
+            for da in self.file.blocks[block_index].data_arrays:
                 if da.type == 'neo.analogsignal':
                     da_list.append(da.size)
             for c in channel_indexes:
@@ -212,7 +202,6 @@ class NixRawIO (BaseRawIO):
         for idx, ch in enumerate(self.header['signal_channels']):
             if self.header['signal_channels'][idx]['group_id'] == nb_chan:
                 same_group.append(idx)  # index start from 0
-
         id_in_group = []
         for x in channel_indexes:
             if x not in same_group:
@@ -224,10 +213,12 @@ class NixRawIO (BaseRawIO):
             ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
-                if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
-                    raw_signals_list.append(da[i_start:i_stop])
+                if da.type == 'neo.analogsignal' :
+                    if da.sources[0].name == chan_name:
+                        raw_signals_list.append(da[i_start:i_stop])
 
         raw_signals = np.array(raw_signals_list)
+        print('raw_signals',raw_signals.size)
         raw_signals = raw_signals[id_in_group, :]
         raw_signals = np.transpose(raw_signals)
         #print(np.shape(raw_signals))
@@ -266,8 +257,6 @@ class NixRawIO (BaseRawIO):
         spike_times = spike_timestamps.astype(dtype)
         sr= self.header['signal_channels'][0][2]
         spike_times *= sr
-            # nix use sampl interval instead of sr
-            # sr = 1 / da.dimensions[0].sampling_interval
         return spike_times
 
     def _get_spike_raw_waveforms(self, block_index, seg_index, unit_index, t_start, t_stop):

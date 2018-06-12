@@ -8,14 +8,14 @@ import numpy as np
 import quantities as pq
 
 
-nsegments = 3
 
 block1 = Block("nix-raw-block1", description="The 1st block")
 block2 = Block("nix-raw-block2", description="The 2md block")
 
 for block in (block1,block2):
     ch_count = 0
-
+    asig_count = 0
+    nsegments = 3
     for idx in range(nsegments):
         seg = Segment("seg-ex{}".format(idx),
                       description="Segment number {}".format(idx))
@@ -35,13 +35,13 @@ for block in (block1,block2):
         sampling_rate = pq.Quantity(1, "Hz")
 
         indexes = np.arange(nchannels)
-        for idx, signal in enumerate([data_a, data_b, data_c]):
+        for cidx, signal in enumerate([data_a, data_b, data_c]):
             indexes = np.arange(signal.shape[1]) + ch_count
             ch_count += signal.shape[1]
-            chx = ChannelIndex(name="channel-{}".format(idx),
+            chx = ChannelIndex(name="Seg {} :: channel-{}".format(idx, cidx),
                                index=indexes,
-                               channel_names=["S" + str(idx) + chr(ord("a") + i) for i in indexes],
-                               channel_ids=idx * 100 + indexes + 1)
+                               channel_names=["S" + str(cidx) + chr(ord("a") + i) for i in indexes],
+                               channel_ids=idx * 10000 + cidx * 100 + indexes + 1)
             print(chx.channel_ids)
             print("index is", chx.index)
             block.channel_indexes.append(chx)
@@ -56,7 +56,8 @@ for block in (block1,block2):
                                 signal=data, units="mV",
                                 sampling_rate=sampling_rate)
             seg.analogsignals.append(asig)
-            block.channel_indexes[didx].analogsignals.append(asig)
+            block.channel_indexes[didx+asig_count].analogsignals.append(asig)
+        asig_count += len((data_a, data_b, data_c))
 
         # random sampling times for data_b
         irsigdata = np.random.random((1200, 2))
@@ -95,7 +96,6 @@ for block in (block1,block2):
 
         unit = Unit(name="unit-{}".format(idx))
         unit.spiketrains.append(st)
-        print(chx.name)
         chx.units.append(unit)
 
 # Write the Block to file using the NixIO
