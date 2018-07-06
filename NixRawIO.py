@@ -168,8 +168,7 @@ class NixRawIO (BaseRawIO):
                     break
         return sig_t_start
 
-    def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):  # chan must be list!
-        # now only channel_indexes with same group_id is allowed!!!!!! is it good?
+    def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
         print(channel_indexes)
         if i_start is None:
             i_start = 0
