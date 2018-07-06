@@ -217,12 +217,10 @@ class NixRawIO (BaseRawIO):
                     if da.sources[0].name == chan_name:
                         raw_signals_list.append(da[i_start:i_stop])
 
+        raw_signals_list = [raw_signals_list[i] for i in id_in_group]
+        # returning in a strange nested form, may cause problem
         raw_signals = np.array(raw_signals_list)
-        print('raw_signals',raw_signals.size)
-        raw_signals = raw_signals[id_in_group, :]
         raw_signals = np.transpose(raw_signals)
-        #print(np.shape(raw_signals))
-        #print(raw_signals)
         return raw_signals
 
     def _spike_count(self, block_index, seg_index, unit_index):         # Done!
