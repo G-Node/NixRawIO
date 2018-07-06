@@ -169,7 +169,7 @@ class NixRawIO (BaseRawIO):
         return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
-        print(channel_indexes)
+        print("channel", channel_indexes)
         if i_start is None:
             i_start = 0
         if i_stop is None:
@@ -196,10 +196,13 @@ class NixRawIO (BaseRawIO):
             nb_chan = [i for (i, v) in zip(channel_indexes, keep) if v]
 
         nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
+
+
         # delete the line above if channel_index is ChannelIndex instead of header
         same_group = []
         for idx, ch in enumerate(self.header['signal_channels']):
             if self.header['signal_channels'][idx]['group_id'] == nb_chan:
+
                 same_group.append(idx)  # index start from 0
         id_in_group = []
         for x in channel_indexes:
@@ -208,12 +211,18 @@ class NixRawIO (BaseRawIO):
             a = same_group.index(x)
             id_in_group.append(a)
         raw_signals_list = []
-        for ch in nb_chan:
-            ch = int(ch)
-            chan_name = self.file.blocks[block_index].sources[ch].name
-            for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
-                if da.type == 'neo.analogsignal' :
-                    if da.sources[0].name == chan_name:
+        #for ch in nb_chan:
+            #ch = int(ch)
+            #chan_name = self.file.blocks[block_index].sources[ch].name
+        #for i, da in enumerate(self.file.blocks[block_index].data_arrays):
+            #if i in channel_indexes:
+                #if da.type == 'neo.analogsignal' :
+                    # if da.sources[0].name == chan_name:
+        for ch in channel_indexes:
+            name = self.header['signal_channels'][ch]["name"]
+            for da in self.file.blocks[block_index].data_arrays:
+                for i in id_in_group:
+                    if i < len(da.sources) and da.sources[0].sources[i].metadata["neo_name"] == name:
                         raw_signals_list.append(da[i_start:i_stop])
 
         raw_signals_list = [raw_signals_list[i] for i in id_in_group]

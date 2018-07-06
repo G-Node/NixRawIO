@@ -9,7 +9,8 @@ localfile = '/home/choi/PycharmProjects/Nixneo/neoraw.nix'
 reader = NixRawIO(filename=localfile)
 reader.__init__('neoraw.nix')
 reader.parse_header()
-print("abcbacb", reader.raw_annotations['blocks'][0:2]['segments'][:])
+print(reader.segment_count(0))
+print("abcbacb", reader.raw_annotations['blocks'][0]['segments'][1]['signals'][20])
 
 r = reader.get_analogsignal_chunk(0,0,None,None,[1,2])
 print(r)
