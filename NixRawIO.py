@@ -44,6 +44,7 @@ class NixRawIO (BaseRawIO):
                         gain = 1
                         offset = 0.
                         sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
+                break
         sig_channels = np.array(sig_channels, dtype=_signal_channel_dtype)
         # print("\t\t sig_channel: {}".format(sig_channels))
 
@@ -106,26 +107,26 @@ class NixRawIO (BaseRawIO):
         self._generate_minimal_annotations()
 
 
-        for block_index in range(len(self.file.blocks)):
-            bl_ann = self.raw_annotations['blocks'][block_index]
-            # print("\t\t bl_ann: {}".format(bl_ann))
-            seg_range = [len(bl.groups) for bl in self.file.blocks]
-            for seg_index in range(seg_range[block_index]):
-                ac = 0
-                stc = 0
-                ec = 0
-                seg_ann = bl_ann['segments'][seg_index]
-                for da in self.file.blocks[block_index].data_arrays:
-                    if da.type == "neo.analogsignal":
-                        anasig_an = seg_ann['signals'][ac]  # should I include irregular signals?
-                        ac += 1
-                for st in unit_channels:
-                    spiketrain_an = seg_ann['units'][stc]
-                    # print("\t\t spiketrain_an: {}".format(spiketrain_an))
-                    stc += 1
-                for e in event_channels:
-                    even_an = seg_ann['events'][ec]
-                    ec += 1
+        # for block_index in range(len(self.file.blocks)):
+        #     bl_ann = self.raw_annotations['blocks'][block_index]
+        #     # print("\t\t bl_ann: {}".format(bl_ann))
+        #     seg_range = [len(bl.groups) for bl in self.file.blocks]
+        #     for seg_index in range(seg_range[block_index]):
+        #         ac = 0
+        #         stc = 0
+        #         ec = 0
+        #         seg_ann = bl_ann['segments'][seg_index]
+        #         for da in self.file.blocks[block_index].data_arrays:
+        #             if da.type == "neo.analogsignal":
+        #                 anasig_an = seg_ann['signals'][ac]  # should I include irregular signals?
+        #                 ac += 1
+        #         for st in unit_channels:
+        #             spiketrain_an = seg_ann['units'][stc]
+        #             # print("\t\t spiketrain_an: {}".format(spiketrain_an))
+        #             stc += 1
+        #         for e in event_channels:
+        #             even_an = seg_ann['events'][ec]
+        #             ec += 1
 
     def _segment_t_start(self, block_index, seg_index):  # Done!
         t_start = 0
@@ -151,7 +152,8 @@ class NixRawIO (BaseRawIO):
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
-                    size += da.size
+                    size = da.size
+                    break
         return size
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):  # Done!
@@ -169,6 +171,7 @@ class NixRawIO (BaseRawIO):
         return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
+        print(block_index, seg_index, i_start, i_stop, channel_indexes)
         ori_ch_index = channel_indexes
         segment_id = self.file.blocks[block_index].groups[seg_index]
         da_ref = []
@@ -258,7 +261,7 @@ class NixRawIO (BaseRawIO):
             for src in mt.sources:
                 if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
                     if head_id == src.id:
-                        count += 1
+                        return len(mt.positions)
         return count
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):  # Done!
@@ -269,8 +272,9 @@ class NixRawIO (BaseRawIO):
                 if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
                     if head_id == src.id:
                         st_times = mt.positions
-                        spike_timestamps.append(st_times)
-        spike_timestamps = np.array(spike_timestamps)
+                        spike_timestamps = np.array(st_times)
+                        break
+        spike_timestamps = np.transpose(spike_timestamps)
 
         if t_start is not None or t_stop is not None:
             lim0 = t_start
@@ -291,7 +295,7 @@ class NixRawIO (BaseRawIO):
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
             if mt.type == "neo.spiketrain":
                 if mt.features[0].data.type == "neo.waveforms":
-                    waveforms.append(mt.features[0].data)
+                    waveforms = mt.features[0].data
         raw_waveforms = np.array(waveforms)
         rs = raw_waveforms.shape
         # raw_waveforms = raw_waveforms.reshape(rs[1], rs[2], rs[3])
@@ -301,6 +305,7 @@ class NixRawIO (BaseRawIO):
             lim1 = t_stop
             mask = (raw_waveforms >= lim0) & (raw_waveforms <= lim1)
             raw_waveforms = np.where(mask, raw_waveforms, np.nan)
+        print(raw_waveforms.shape)
         return raw_waveforms
 
     def _event_count(self, block_index, seg_index, event_channel_index):  # Done!
@@ -343,4 +348,5 @@ class NixRawIO (BaseRawIO):
     def _rescale_epoch_duration(self, raw_duration, dtype):  # Done!
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations
+
 
