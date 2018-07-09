@@ -169,7 +169,21 @@ class NixRawIO (BaseRawIO):
         return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
-        print("channel", channel_indexes)
+        segment_id = self.file.blocks[block_index].groups[seg_index]
+        da_ref = []
+        da_count = 0
+        for bl in self.file.blocks:
+            for seg in bl.groups:
+                cur_seg = seg
+                for da in seg.data_arrays:
+                    if da.type == 'neo.analogsignal':
+                        da_ref.append((cur_seg,da, da_count))
+                        da_count += 1
+        keep = [data[0]==segment_id for data in da_ref]
+        da_ref_real = [da_ref[i] for i in range(len(da_ref)) if keep[i]]
+        print(da_ref_real)
+
+
         if i_start is None:
             i_start = 0
         if i_stop is None:
@@ -180,7 +194,7 @@ class NixRawIO (BaseRawIO):
             for c in channel_indexes:
                 i_stop = da_list[c]
                 break
-            # supposed all data in same ChannelIndex have same size
+
         chan_list = []
         for chan in self.file.blocks[block_index].sources:
             if chan.type == "neo.channelindex":
@@ -211,18 +225,20 @@ class NixRawIO (BaseRawIO):
             a = same_group.index(x)
             id_in_group.append(a)
         raw_signals_list = []
-        #for ch in nb_chan:
-            #ch = int(ch)
-            #chan_name = self.file.blocks[block_index].sources[ch].name
-        #for i, da in enumerate(self.file.blocks[block_index].data_arrays):
-            #if i in channel_indexes:
-                #if da.type == 'neo.analogsignal' :
-                    # if da.sources[0].name == chan_name:
-        for ch in channel_indexes:
-            name = self.header['signal_channels'][ch]["name"]
-            for da in self.file.blocks[block_index].data_arrays:
-                for i in id_in_group:
-                    if i < len(da.sources) and da.sources[0].sources[i].metadata["neo_name"] == name:
+        for ch in nb_chan:
+            ch = int(ch)
+            chan_name = self.file.blocks[block_index].sources[ch].name
+            print("groups sources", self.file.blocks[block_index].groups[seg_index].sources[0].sources)
+        for i, da in enumerate(self.file.blocks[block_index].groups[seg_index].data_arrays):
+            print((da.sources[0].name if da.sources else print("abc")))
+            if i in channel_indexes:
+                if da.type == 'neo.analogsignal' :
+                    if da.sources[0].name == chan_name:
+        #for ch in channel_indexes:
+            #name = self.header['signal_channels'][ch]["name"]
+            #for da in self.file.blocks[block_index].data_arrays:
+                #for i in id_in_group:
+                    #if i < len(da.sources) and da.sources[0].sources[i].metadata["neo_name"] == name:
                         raw_signals_list.append(da[i_start:i_stop])
 
         raw_signals_list = [raw_signals_list[i] for i in id_in_group]
