@@ -169,6 +169,7 @@ class NixRawIO (BaseRawIO):
         return sig_t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
+        ori_ch_index = channel_indexes
         segment_id = self.file.blocks[block_index].groups[seg_index]
         da_ref = []
         da_count = 0
@@ -181,8 +182,13 @@ class NixRawIO (BaseRawIO):
                         da_count += 1
         keep = [data[0]==segment_id for data in da_ref]
         da_ref_real = [da_ref[i] for i in range(len(da_ref)) if keep[i]]
-        print(da_ref_real)
 
+        ch_index = []
+        for i, da  in enumerate(da_ref_real):
+            if da[2] in channel_indexes:
+                ch_index.append(i)
+        channel_indexes = ch_index
+        # assert channel_indexes != [], "These indexes are not in the specified segment or block"
 
         if i_start is None:
             i_start = 0
@@ -209,14 +215,13 @@ class NixRawIO (BaseRawIO):
                 keep.append(ch <= len(chan_list) - 1)
             nb_chan = [i for (i, v) in zip(channel_indexes, keep) if v]
 
-        nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
+        nb_chan = np.unique(self.header['signal_channels'][ori_ch_index]['group_id'])
 
 
         # delete the line above if channel_index is ChannelIndex instead of header
         same_group = []
         for idx, ch in enumerate(self.header['signal_channels']):
             if self.header['signal_channels'][idx]['group_id'] == nb_chan:
-
                 same_group.append(idx)  # index start from 0
         id_in_group = []
         for x in channel_indexes:
@@ -228,9 +233,8 @@ class NixRawIO (BaseRawIO):
         for ch in nb_chan:
             ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
-            print("groups sources", self.file.blocks[block_index].groups[seg_index].sources[0].sources)
         for i, da in enumerate(self.file.blocks[block_index].groups[seg_index].data_arrays):
-            print((da.sources[0].name if da.sources else print("abc")))
+            #print((da.sources[0].name if da.sources else print("abc")))
             if i in channel_indexes:
                 if da.type == 'neo.analogsignal' :
                     if da.sources[0].name == chan_name:
@@ -241,7 +245,7 @@ class NixRawIO (BaseRawIO):
                     #if i < len(da.sources) and da.sources[0].sources[i].metadata["neo_name"] == name:
                         raw_signals_list.append(da[i_start:i_stop])
 
-        raw_signals_list = [raw_signals_list[i] for i in id_in_group]
+        #raw_signals_list = [raw_signals_list[i] for i in id_in_group]
         # returning in a strange nested form, may cause problem
         raw_signals = np.array(raw_signals_list)
         raw_signals = np.transpose(raw_signals)
