@@ -172,26 +172,26 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
         print(block_index, seg_index, i_start, i_stop, channel_indexes)
-        ori_ch_index = channel_indexes
-        segment_id = self.file.blocks[block_index].groups[seg_index]
-        da_ref = []
-        da_count = 0
-        for bl in self.file.blocks:
-            for seg in bl.groups:
-                cur_seg = seg
-                for da in seg.data_arrays:
-                    if da.type == 'neo.analogsignal':
-                        da_ref.append((cur_seg,da, da_count))
-                        da_count += 1
-        keep = [data[0]==segment_id for data in da_ref]
-        da_ref_real = [da_ref[i] for i in range(len(da_ref)) if keep[i]]
-
-        ch_index = []
-        for i, da  in enumerate(da_ref_real):
-            if da[2] in channel_indexes:
-                ch_index.append(i)
-        channel_indexes = ch_index
-        # assert channel_indexes != [], "These indexes are not in the specified segment or block"
+        # ori_ch_index = channel_indexes
+        # segment_id = self.file.blocks[block_index].groups[seg_index]
+        # da_ref = []
+        # da_count = 0
+        # for bl in self.file.blocks:
+        #     for seg in bl.groups:
+        #         cur_seg = seg
+        #         for da in seg.data_arrays:
+        #             if da.type == 'neo.analogsignal':
+        #                 da_ref.append((cur_seg,da, da_count))
+        #                 da_count += 1
+        # keep = [data[0]==segment_id for data in da_ref]
+        # da_ref_real = [da_ref[i] for i in range(len(da_ref)) if keep[i]]
+        #
+        # ch_index = []
+        # for i, da  in enumerate(da_ref_real):
+        #     if da[2] in channel_indexes:
+        #         ch_index.append(i)
+        # channel_indexes = ch_index
+        # # assert channel_indexes != [], "These indexes are not in the specified segment or block"
 
         if i_start is None:
             i_start = 0
@@ -218,7 +218,7 @@ class NixRawIO (BaseRawIO):
                 keep.append(ch <= len(chan_list) - 1)
             nb_chan = [i for (i, v) in zip(channel_indexes, keep) if v]
 
-        nb_chan = np.unique(self.header['signal_channels'][ori_ch_index]['group_id'])
+        nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
 
 
         # delete the line above if channel_index is ChannelIndex instead of header
@@ -305,7 +305,6 @@ class NixRawIO (BaseRawIO):
             lim1 = t_stop
             mask = (raw_waveforms >= lim0) & (raw_waveforms <= lim1)
             raw_waveforms = np.where(mask, raw_waveforms, np.nan)
-        print(raw_waveforms.shape)
         return raw_waveforms
 
     def _event_count(self, block_index, seg_index, event_channel_index):  # Done!

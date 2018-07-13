@@ -16,35 +16,35 @@ for block in (block1,):
     ch_count = 0
     asig_count = 0
     nsegments = 2
+
+    # Generate 3 fake data signals using numpy's random function
+    # The shapes of the arrays are arbitrary
+    data_a = np.random.random((300, 1)) # make the shape all the same, to make sure array generation is good
+    # not sure if it is the general case
+    data_b = np.random.random((1200, 3))
+    data_c = np.random.random((8000, 5))
+    nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1] # which one is correct
+    nchannels = 3
+
+    sampling_rate = pq.Quantity(1, "Hz")
+
+    indexes = np.arange(nchannels)
+    for cidx, signal in enumerate([data_a, data_b, data_c]):
+        indexes = np.arange(signal.shape[1]) + ch_count
+        ch_count += signal.shape[1]
+        chx = ChannelIndex(name="channel-{}".format(cidx),
+                           index=indexes,
+                           channel_names=["S" + str(cidx) + chr(ord("a") + i) for i in indexes],
+                           channel_ids=cidx * 100 + indexes + 1)
+        print(chx.channel_ids)
+        print("index is", chx.index)
+        block.channel_indexes.append(chx)
+
     for idx in range(nsegments):
         seg = Segment("seg-ex{}".format(idx),
                       description="Segment number {}".format(idx))
         block.segments.append(seg)
 
-
-
-        # Generate 3 fake data signals using numpy's random function
-        # The shapes of the arrays are arbitrary
-        data_a = np.random.random((300, 1)) # make the shape all the same, to make sure array generation is good
-        # not sure if it is the general case
-        data_b = np.random.random((1200, 3))
-        data_c = np.random.random((8000, 5))
-        nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1] # which one is correct
-        nchannels = 3
-
-        sampling_rate = pq.Quantity(1, "Hz")
-
-        indexes = np.arange(nchannels)
-        for cidx, signal in enumerate([data_a, data_b, data_c]):
-            indexes = np.arange(signal.shape[1]) + ch_count
-            ch_count += signal.shape[1]
-            chx = ChannelIndex(name="Seg {} :: channel-{}".format(idx, cidx),
-                               index=indexes,
-                               channel_names=["S" + str(cidx) + chr(ord("a") + i) for i in indexes],
-                               channel_ids=idx * 10000 + cidx * 100 + indexes + 1)
-            print(chx.channel_ids)
-            print("index is", chx.index)
-            block.channel_indexes.append(chx)
 
         for didx, data in enumerate((data_a, data_b, data_c)):
             if didx == 1:
@@ -56,7 +56,7 @@ for block in (block1,):
                                 signal=data, units="mV",
                                 sampling_rate=sampling_rate)
             seg.analogsignals.append(asig)
-            block.channel_indexes[didx+asig_count].analogsignals.append(asig)
+            block.channel_indexes[didx].analogsignals.append(asig)
         asig_count += len((data_a, data_b, data_c))
 
         # random sampling times for data_b
