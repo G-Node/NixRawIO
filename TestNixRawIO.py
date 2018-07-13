@@ -12,8 +12,9 @@ reader.parse_header()
 
 r = reader.get_analogsignal_chunk(0,0,None,None,[0])
 print(r)
+print(reader.file.blocks)
 print("====================================================")
-r = reader.get_analogsignal_chunk(0,1,None,None,[8])
+r = reader.get_analogsignal_chunk(1,1,None,None,[8])
 print(r)
 
 

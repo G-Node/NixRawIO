@@ -149,6 +149,7 @@ class NixRawIO (BaseRawIO):
         ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
         for ch in ch_list:
             ch = int(ch)
+            print(block_index, ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:

@@ -30,10 +30,10 @@ for chx in blk.channel_indexes:
     #print(chx.channel_ids)
     #print(chx.channel_names)
     #print("index: {}:".format(chx.index))
-    for u in chx.units:
+    for i, u in enumerate(chx.units):
         print(u.name)
         print(u.spiketrains)
-        print(u.spiketrains[0].times)
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",u.spiketrains[i].times)
         print(u.spiketrains[0].t_start)
         print(u.spiketrains[0].t_stop)
 print(blk.segments[0].events[0].name)

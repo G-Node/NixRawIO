@@ -10,9 +10,9 @@ import quantities as pq
 
 
 block1 = Block("nix-raw-block1", description="The 1st block")
-#block2 = Block("nix-raw-block2", description="The 2md block")
+block2 = Block("nix-raw-block2", description="The 2md block")
 
-for block in (block1,):
+for block in (block1, block2):
     ch_count = 0
     asig_count = 0
     nsegments = 2
@@ -103,7 +103,7 @@ for block in (block1,):
 fname = "neoraw.nix"
 io = NixIO(fname, "ow")
 io.write_block(block1)
-#io.write_block(block2)
+io.write_block(block2)
 io.close()
 
 print("Done. Saved to {}".format(fname))
