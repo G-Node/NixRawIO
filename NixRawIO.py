@@ -43,6 +43,8 @@ class NixRawIO (BaseRawIO):
                                 group_id = id # very important! group_id use to store channel groups!!!
                         gain = 1
                         offset = 0.
+                        print("ch_name", ch_name)
+                        print("chan_id", chan_id)
                         sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
                 break
         sig_channels = np.array(sig_channels, dtype=_signal_channel_dtype)
@@ -143,6 +145,7 @@ class NixRawIO (BaseRawIO):
         return t_stop
 
     def _get_signal_size(self, block_index, seg_index, channel_indexes):   # Done!
+        print("size", block_index, seg_index, channel_indexes)
         size = 0
         if channel_indexes is None:
             channel_indexes = []
@@ -158,6 +161,7 @@ class NixRawIO (BaseRawIO):
         return size
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):  # Done!
+        print("_get_signal_t_start", block_index, seg_index, channel_indexes)
         sig_t_start = 0
         if channel_indexes is None:
             channel_indexes = []

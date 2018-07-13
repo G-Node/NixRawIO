@@ -10,7 +10,7 @@ reader = NixRawIO(filename=localfile)
 reader.__init__('neoraw.nix')
 reader.parse_header()
 
-r = reader.get_analogsignal_chunk(0,0,None,None,[0])
+r = reader.get_analogsignal_chunk(0,0,None,None,[8])
 print(r)
 print(reader.file.blocks)
 print("====================================================")
