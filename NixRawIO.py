@@ -25,7 +25,7 @@ class NixRawIO (BaseRawIO):
             for ch, src in enumerate(blk.sources):
                 channel_name.append(src.name)
         sig_channels = []
-        blk_sig_dict = {}  # for identigying sig in whihc blks, use in raw_ann later
+        blk_sig_dict = {}  # for identifying sig in whihc blks, use in raw_ann later
         blsig_count = 0
         for i, bl in enumerate(self.file.blocks):
             sig_in_blk = []

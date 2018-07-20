@@ -10,7 +10,7 @@ import quantities as pq
 
 
 block1 = Block("nix-raw-block1", description="The 1st block")
-block2 = Block("nix-raw-block2", description="The 2md block")
+block2 = Block("nix-raw-block2", description="The 2nd block")
 
 for block in (block1, block2):
     ch_count = 0
@@ -36,8 +36,6 @@ for block in (block1, block2):
                            index=indexes,
                            channel_names=["S" + str(cidx) + chr(ord("a") + i) for i in indexes],
                            channel_ids=cidx * 100 + indexes + 1)
-        print(chx.channel_ids)
-        print("index is", chx.index)
         block.channel_indexes.append(chx)
 
     for idx in range(nsegments):
@@ -45,16 +43,18 @@ for block in (block1, block2):
                       description="Segment number {}".format(idx))
         block.segments.append(seg)
 
-
+        # signal +idx is for testing if segment is correct and it is proved correct
         for didx, data in enumerate((data_a, data_b, data_c)):
             if didx == 1:
                 asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
-                                    signal=data, units="V",
+                                    signal=data+idx, units="V",
                                     sampling_rate=sampling_rate)
+                print("Seg {} :: Data {}".format(idx, didx))
             else:
                 asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),
-                                signal=data, units="mV",
+                                signal=data+idx, units="mV",
                                 sampling_rate=sampling_rate)
+                print("Seg {} :: Data {}".format(idx, didx))
             seg.analogsignals.append(asig)
             block.channel_indexes[didx].analogsignals.append(asig)
         asig_count += len((data_a, data_b, data_c))
