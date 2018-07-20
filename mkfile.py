@@ -22,7 +22,10 @@ for block in (block1, block2):
     data_a = np.random.random((300, 1)) # make the shape all the same, to make sure array generation is good
     # not sure if it is the general case
     data_b = np.random.random((1200, 3))
-    data_c = np.random.random((8000, 5))
+    if block == block1:
+        data_c = np.random.random((8000, 5))
+    else:
+        data_c = np.random.random((2000, 5))
     nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1] # which one is correct
     nchannels = 3
 
@@ -43,7 +46,7 @@ for block in (block1, block2):
                       description="Segment number {}".format(idx))
         block.segments.append(seg)
 
-        # signal +idx is for testing if segment is correct and it is proved correct
+        # signal +idx is for testing if segment is correct
         for didx, data in enumerate((data_a, data_b, data_c)):
             if didx == 1:
                 asig = AnalogSignal(name="Seg {} :: Data {}".format(idx, didx),

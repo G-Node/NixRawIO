@@ -135,7 +135,11 @@ class NixRawIO (BaseRawIO):
         ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
         for ch in ch_list:
             ch = int(ch)
-            chan_name = self.file.blocks[block_index].sources[ch].name
+            try:
+                chan_name = self.file.blocks[block_index].sources[ch].name
+            except KeyError:
+                print("There is no channel index: {}".format(channel_indexes))
+                continue
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
                     size = da.size
@@ -149,7 +153,11 @@ class NixRawIO (BaseRawIO):
         ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
         for ch in ch_list:
             ch = int(ch)
-            chan_name = self.file.blocks[block_index].sources[ch].name
+            try:
+                chan_name = self.file.blocks[block_index].sources[ch].name
+            except KeyError:
+                print("There is no channel index: {}".format(channel_indexes))
+                continue
             for da in self.file.blocks[block_index].groups[seg_index].data_arrays:
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
                     sig_t_start = float(da.metadata['t_start'])
@@ -221,7 +229,11 @@ class NixRawIO (BaseRawIO):
         raw_signals_list = []
         for ch in nb_chan:
             ch = int(ch)
-            chan_name = self.file.blocks[block_index].sources[ch].name
+            try:
+                chan_name = self.file.blocks[block_index].sources[ch].name
+            except KeyError:
+                print("There is no channel index: {}".format(channel_indexes))
+                continue
         for i, da in enumerate(self.file.blocks[block_index].groups[seg_index].data_arrays):
             #print((da.sources[0].name if da.sources else print("abc")))
             if i in channel_indexes:
@@ -238,6 +250,10 @@ class NixRawIO (BaseRawIO):
         # returning in a strange nested form, may cause problem
         raw_signals = np.array(raw_signals_list)
         raw_signals = np.transpose(raw_signals)
+        print(raw_signals.shape)
+        if raw_signals.size == 0:
+            print("abc")
+            raw_signals = np.zeros(shape=(5,5))
         return raw_signals
 
     def _spike_count(self, block_index, seg_index, unit_index):
