@@ -41,7 +41,7 @@ class NixRawIO (BaseRawIO):
                         group_id = 0
                         for id, name in enumerate(channel_name):
                             if name == da.sources[0].name:
-                                group_id = id # very important! group_id use to store channel groups!!!
+                                group_id = id  # very important! group_id use to store channel groups!!!
                         gain = 1
                         offset = 0.
                         sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
@@ -131,7 +131,7 @@ class NixRawIO (BaseRawIO):
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
                     size = da.size
                     break
-        return size
+        return size # size is per signal, not the sum of all channel_indexes
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):
         sig_t_start = 0
@@ -179,7 +179,7 @@ class NixRawIO (BaseRawIO):
             chan_name = self.file.blocks[block_index].sources[ch].name
         for i, da in enumerate(self.file.blocks[block_index].groups[seg_index].data_arrays):
             if i in channel_indexes:
-                if da.type == 'neo.analogsignal' :
+                if da.type == 'neo.analogsignal':
                     if da.sources[0].name == chan_name:
                         raw_signals_list.append(da[i_start:i_stop])
 
@@ -218,7 +218,7 @@ class NixRawIO (BaseRawIO):
 
     def _rescale_spike_timestamp(self, spike_timestamps, dtype):
         spike_times = spike_timestamps.astype(dtype)
-        sr= self.header['signal_channels'][0][2]
+        sr = self.header['signal_channels'][0][2]
         spike_times *= sr
         return spike_times
 
@@ -267,7 +267,7 @@ class NixRawIO (BaseRawIO):
             keep = timestamp <= t_stop
             timestamp, labels = timestamp[keep], labels[keep]
         durations = None
-        return timestamp, durations, labels
+        return timestamp, durations, labels  # only the first fits in rescale
 
     def _rescale_event_timestamp(self, event_timestamps, dtype):
         event_times = event_timestamps.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
