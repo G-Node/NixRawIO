@@ -106,7 +106,6 @@ class NixRawIO (BaseRawIO):
 
         self._generate_minimal_annotations()
 
-
         # for block_index in range(len(self.file.blocks)):
         #     bl_ann = self.raw_annotations['blocks'][block_index]
         #     # print("\t\t bl_ann: {}".format(bl_ann))
