@@ -39,9 +39,10 @@ class NixRawIO (BaseRawIO):
                         dtype = str(da.dtype)
                         sr = 1 / da.dimensions[0].sampling_interval
                         group_id = 0
-                        for id, name in enumerate(channel_name):
+                        for cid, name in enumerate(channel_name):
                             if name == da.sources[0].name:
-                                group_id = id  # very important! group_id use to store channel groups!!!
+                                group_id = cid  # very important! group_id use to store channel groups!!!
+                                # use only for different signal length
                         gain = 1
                         offset = 0.
                         sig_channels.append((ch_name, chan_id, sr, dtype, units, gain, offset, group_id))
@@ -131,7 +132,7 @@ class NixRawIO (BaseRawIO):
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
                     size = da.size
                     break
-        return size # size is per signal, not the sum of all channel_indexes
+        return size  # size is per signal, not the sum of all channel_indexes
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):
         sig_t_start = 0
@@ -145,7 +146,7 @@ class NixRawIO (BaseRawIO):
                 if da.type == 'neo.analogsignal' and da.sources[0].name == chan_name:
                     sig_t_start = float(da.metadata['t_start'])
                     break
-        return sig_t_start
+        return sig_t_start  # assume same group_id always same t_start
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
 
@@ -276,5 +277,3 @@ class NixRawIO (BaseRawIO):
     def _rescale_epoch_duration(self, raw_duration, dtype):
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations
-
-
