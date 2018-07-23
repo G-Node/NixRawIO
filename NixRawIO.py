@@ -1,3 +1,12 @@
+"""
+RawIO Class for NIX files
+
+The RawIO assumes all segments and all blocks have the same structure. It supports all kind of NEO objects.
+
+Author: Chek Yin Choi
+
+"""
+
 from __future__ import print_function, division, absolute_import
 from neo.rawio.baserawio import (BaseRawIO, _signal_channel_dtype, _unit_channel_dtype, _event_channel_dtype)
 import numpy as np
