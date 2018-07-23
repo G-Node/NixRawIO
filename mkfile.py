@@ -22,10 +22,7 @@ for block in (block1, block2):
     data_a = np.random.random((300, 1)) # make the shape all the same, to make sure array generation is good
     # not sure if it is the general case
     data_b = np.random.random((1200, 3))
-    if block == block1:
-        data_c = np.random.random((8000, 5))
-    else:
-        data_c = np.random.random((2000, 5))
+    data_c = np.random.random((8000, 5))
     nchannels = data_a.shape[1] + data_b.shape[1] + data_c.shape[1] # which one is correct
     nchannels = 3
 
