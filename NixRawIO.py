@@ -172,18 +172,6 @@ class NixRawIO (BaseRawIO):
                 break
 
         nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
-
-        # delete the line above if channel_index is ChannelIndex instead of header
-        same_group = []
-        for idx, ch in enumerate(self.header['signal_channels']):
-            if self.header['signal_channels'][idx]['group_id'] == nb_chan:
-                same_group.append(idx)  # index start from 0
-        id_in_group = []
-        for x in channel_indexes:
-            if x not in same_group:
-                continue
-            a = same_group.index(x)
-            id_in_group.append(a)
         raw_signals_list = []
         for ch in nb_chan:
             ch = int(ch)

@@ -52,7 +52,7 @@ for chx in blk.channel_indexes:
          print(u.spiketrains[0].t_stop)
          for st in u.spiketrains:
              print(st.waveforms.units)
-print(blk.segments[0].events[1].name)
+print(blk.segments[1].events[0].name)
 print(blk.segments[0].epochs[0].name)
 
 
