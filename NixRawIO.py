@@ -107,6 +107,26 @@ class NixRawIO (BaseRawIO):
             break
         event_channels = np.array(event_channels, dtype=_event_channel_dtype)
 
+        self.da_list = {'blocks': []}
+
+        for block_index, blk in enumerate(self.file.blocks):
+            d = {'segments': []}
+            self.da_list['blocks'].append(d)
+            for seg_index, seg in enumerate(blk.groups):
+                d = {'signals': []}
+                self.da_list['blocks'][block_index]['segments'].append(d)
+                size_list = []
+                data_list = []
+                ch_name_list = []
+                for da in seg.data_arrays:
+                    if da.type == 'neo.analogsignal':
+                        size_list.append(da.size)
+                        data_list.append(da)
+                        ch_name_list.append(da.sources[0].name)
+                self.da_list['blocks'][block_index]['segments'][seg_index]['data_size'] = size_list
+                self.da_list['blocks'][block_index]['segments'][seg_index]['data'] = data_list
+                self.da_list['blocks'][block_index]['segments'][seg_index]['ch_name'] = ch_name_list
+
         self.header = {}
         self.header['nb_block'] = len(self.file.blocks)
         self.header['nb_segment'] = [len(bl.groups) for bl in self.file.blocks]
@@ -160,15 +180,12 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
 
+
         if i_start is None:
             i_start = 0
         if i_stop is None:
-            da_list = []
-            for da in self.file.blocks[block_index].data_arrays:
-                if da.type == 'neo.analogsignal':
-                    da_list.append(da.size)
             for c in channel_indexes:
-                i_stop = da_list[c]
+                i_stop = self.da_list['blocks'][block_index]['segments'][seg_index]['data_size'][c]
                 break
 
         nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
@@ -176,11 +193,11 @@ class NixRawIO (BaseRawIO):
         for ch in nb_chan:
             ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
-        for i, da in enumerate(self.file.blocks[block_index].groups[seg_index].data_arrays):
-            if i in channel_indexes:
-                if da.type == 'neo.analogsignal':
-                    if da.sources[0].name == chan_name:
-                        raw_signals_list.append(da[i_start:i_stop])
+            da_list = self.da_list['blocks'][block_index]['segments'][seg_index]
+        for idx in channel_indexes:
+            da = da_list['data'][idx]
+            if da_list['ch_name'][idx]== chan_name:
+                raw_signals_list.append(da[i_start:i_stop])
 
         raw_signals = np.array(raw_signals_list)
         raw_signals = np.transpose(raw_signals)
