@@ -45,6 +45,7 @@ for chx in blk.channel_indexes:
      print(chx.channel_names)
      print("index: {}:".format(chx.index))
      print ("===========================")
+     print(chx.units)
      for i, u in enumerate(chx.units):
          print(u.name)
          print(u.spiketrains)
@@ -55,5 +56,7 @@ for chx in blk.channel_indexes:
              print(st.waveforms.units)
 print(blk.segments[1].events[0].name)
 print(blk.segments[0].epochs[0].name)
+print(blk.segments[0].spiketrains)
+print(blk.segments[1].spiketrains)
 
 

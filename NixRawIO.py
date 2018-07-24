@@ -64,23 +64,22 @@ class NixRawIO (BaseRawIO):
         for bl in self.file.blocks:
             for seg in bl.groups:
                 for mt in seg.multi_tags:
-                    if mt.type != "neo.spiketrain":
-                        continue
-                    for usrc in mt.sources:
-                        if usrc.type == "neo.unit":
-                            unit_name = usrc.metadata['neo_name']
-                            unit_id = usrc.id
-                            continue
-                    wf_units = mt.features[0].data.unit
-                    wf_gain = 1
-                    wf_offset = 0.
-                    if "left_sweep" in mt.features[0].data.metadata:
-                        wf_left_sweep = mt.features[0].data.metadata["left_sweep"]
-                    else:
-                        wf_left_sweep = 0
-                    wf_sampling_rate = 1 / mt.features[0].data.dimensions[2].sampling_interval
-                    unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
-                                          wf_offset, wf_left_sweep, wf_sampling_rate))
+                    if mt.type == "neo.spiketrain":
+                        for usrc in mt.sources:
+                            if usrc.type == "neo.unit":
+                                unit_name = usrc.metadata['neo_name']
+                                unit_id = usrc.id
+                                continue
+                        wf_units = mt.features[0].data.unit
+                        wf_gain = 1
+                        wf_offset = 0.
+                        if "left_sweep" in mt.features[0].data.metadata:
+                            wf_left_sweep = mt.features[0].data.metadata["left_sweep"]
+                        else:
+                            wf_left_sweep = 0
+                        wf_sampling_rate = 1 / mt.features[0].data.dimensions[2].sampling_interval
+                        unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
+                                              wf_offset, wf_left_sweep, wf_sampling_rate))
                 break
             break
         unit_channels = np.array(unit_channels, dtype=_unit_channel_dtype)
@@ -108,7 +107,6 @@ class NixRawIO (BaseRawIO):
         event_channels = np.array(event_channels, dtype=_event_channel_dtype)
 
         self.da_list = {'blocks': []}
-
         for block_index, blk in enumerate(self.file.blocks):
             d = {'segments': []}
             self.da_list['blocks'].append(d)
@@ -126,6 +124,30 @@ class NixRawIO (BaseRawIO):
                 self.da_list['blocks'][block_index]['segments'][seg_index]['data_size'] = size_list
                 self.da_list['blocks'][block_index]['segments'][seg_index]['data'] = data_list
                 self.da_list['blocks'][block_index]['segments'][seg_index]['ch_name'] = ch_name_list
+
+        self.unit_list = {'blocks': []}
+        for block_index, blk in enumerate(self.file.blocks):
+            d = {'segments': []}
+            self.unit_list['blocks'].append(d)
+            for seg_index, seg in enumerate(blk.groups):
+                d = {'spiketrains': [], 'spiketrains_id': [], 'spiketrains_unit': []}
+                self.unit_list['blocks'][block_index]['segments'].append(d)
+                st_idx = 0
+                for st in seg.multi_tags:
+                    d = {'waveforms': []}
+                    self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains_unit'].append(d)
+                    for src in st.sources:
+                        if st.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
+                            self.unit_list['blocks'][block_index]\
+                                ['segments'][seg_index]['spiketrains'].append(st.positions)
+                            self.unit_list['blocks'][block_index]\
+                                ['segments'][seg_index]['spiketrains_id'].append(src.id)
+                            if st.features[0].data.type == "neo.waveforms":
+                                waveforms = st.features[0].data
+                                self.unit_list['blocks'][block_index]['segments'][seg_index]\
+                                    ['spiketrains_unit'][st_idx]['waveforms'] = waveforms
+                                # assume one spiketrain one waveform
+                                st_idx +=1
 
         self.header = {}
         self.header['nb_block'] = len(self.file.blocks)
@@ -192,7 +214,7 @@ class NixRawIO (BaseRawIO):
         for ch in nb_chan:
             ch = int(ch)
             chan_name = self.file.blocks[block_index].sources[ch].name
-            da_list = self.da_list['blocks'][block_index]['segments'][seg_index]
+        da_list = self.da_list['blocks'][block_index]['segments'][seg_index]
         for idx in channel_indexes:
             da = da_list['data'][idx]
             if da_list['ch_name'][idx] == chan_name:
@@ -213,15 +235,9 @@ class NixRawIO (BaseRawIO):
         return count
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):
-        spike_timestamps = []
+        spike_dict = self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains']
         head_id = self.header['unit_channels'][unit_index][1]  # not going to work unit_index can be list or array
-        for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
-            for src in mt.sources:
-                if mt.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
-                    if head_id == src.id:
-                        st_times = mt.positions
-                        spike_timestamps = np.array(st_times)
-                        break
+        spike_timestamps = spike_dict[unit_index]
         spike_timestamps = np.transpose(spike_timestamps)
 
         if t_start is not None or t_stop is not None:
@@ -239,11 +255,8 @@ class NixRawIO (BaseRawIO):
 
     def _get_spike_raw_waveforms(self, block_index, seg_index, unit_index, t_start, t_stop):
         # this must return a 3D numpy array (nb_spike, nb_channel, nb_sample)
-        waveforms = []
-        for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
-            if mt.type == "neo.spiketrain":
-                if mt.features[0].data.type == "neo.waveforms":
-                    waveforms = mt.features[0].data
+        waveforms = self.unit_list['blocks'][block_index]['segments'][seg_index]\
+            ['spiketrains_unit'][unit_index]['waveforms']
         raw_waveforms = np.array(waveforms)
 
         if t_start is not None:
