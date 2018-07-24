@@ -180,7 +180,6 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
 
-
         if i_start is None:
             i_start = 0
         if i_stop is None:
@@ -196,7 +195,7 @@ class NixRawIO (BaseRawIO):
             da_list = self.da_list['blocks'][block_index]['segments'][seg_index]
         for idx in channel_indexes:
             da = da_list['data'][idx]
-            if da_list['ch_name'][idx]== chan_name:
+            if da_list['ch_name'][idx] == chan_name:
                 raw_signals_list.append(da[i_start:i_stop])
 
         raw_signals = np.array(raw_signals_list)

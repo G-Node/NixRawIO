@@ -34,6 +34,7 @@ print('//////////////////////////////////////////////////')
 for asig in blk.segments[0].analogsignals:
     print("asigname", asig.name)
     print(asig.shape)
+print(blk.segments[0].analogsignals[1])
 for asig in blk1.segments[0].analogsignals:
     print("asigname with block 2", asig.name)
     print(asig.shape)
