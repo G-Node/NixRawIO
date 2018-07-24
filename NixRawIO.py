@@ -89,19 +89,21 @@ class NixRawIO (BaseRawIO):
         event_count = 0
         epoch_count = 0
         for bl in self.file.blocks:
-            for mt in bl.multi_tags:
-                if mt.type == "neo.event":
-                    ev_name = mt.metadata['neo_name']
-                    ev_id = event_count
-                    event_count += 1
-                    ev_type = "event"
-                    event_channels.append((ev_name, ev_id, ev_type))
-                if mt.type == "neo.epoch":
-                    ep_name = mt.metadata['neo_name']
-                    ep_id = epoch_count
-                    epoch_count += 1
-                    ep_type = "epoch"
-                    event_channels.append((ep_name, ep_id, ep_type))
+            for seg in bl.groups:
+                for mt in seg.multi_tags:
+                    if mt.type == "neo.event":
+                        ev_name = mt.metadata['neo_name']
+                        ev_id = event_count
+                        event_count += 1
+                        ev_type = "event"
+                        event_channels.append((ev_name, ev_id, ev_type))
+                    if mt.type == "neo.epoch":
+                        ep_name = mt.metadata['neo_name']
+                        ep_id = epoch_count
+                        epoch_count += 1
+                        ep_type = "epoch"
+                        event_channels.append((ep_name, ep_id, ep_type))
+                break
             break
         event_channels = np.array(event_channels, dtype=_event_channel_dtype)
 
@@ -243,7 +245,7 @@ class NixRawIO (BaseRawIO):
         if t_start is not None:
             lim0 = t_start
             mask = (raw_waveforms >= lim0)
-            raw_waveforms = np.where(mask, raw_waveforms, np.nan)
+            raw_waveforms = np.where(mask, raw_waveforms, np.nan)  # use nan to keep the shape
         if t_stop is not None:
             lim1 = t_stop
             mask = (raw_waveforms <= lim1)
