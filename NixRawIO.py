@@ -4,7 +4,6 @@ RawIO Class for NIX files
 The RawIO assumes all segments and all blocks have the same structure. It supports all kind of NEO objects.
 
 Author: Chek Yin Choi
-
 """
 
 from __future__ import print_function, division, absolute_import
@@ -241,10 +240,13 @@ class NixRawIO (BaseRawIO):
                     waveforms = mt.features[0].data
         raw_waveforms = np.array(waveforms)
 
-        if t_start is not None or t_stop is not None:
+        if t_start is not None:
             lim0 = t_start
+            mask = (raw_waveforms >= lim0)
+            raw_waveforms = np.where(mask, raw_waveforms, np.nan)
+        if t_stop is not None:
             lim1 = t_stop
-            mask = (raw_waveforms >= lim0) & (raw_waveforms <= lim1)
+            mask = (raw_waveforms <= lim1)
             raw_waveforms = np.where(mask, raw_waveforms, np.nan)
         return raw_waveforms
 
