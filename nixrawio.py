@@ -1,7 +1,7 @@
 """
 RawIO Class for NIX files
 
-The RawIO assumes all segments and all blocks have the same structure. It supports all kind of NEO objects.
+The RawIO assumes all segments and all blocks have the same structure. It supports all kinds of NEO objects.
 
 Author: Chek Yin Choi
 """
@@ -138,14 +138,12 @@ class NixRawIO (BaseRawIO):
                     self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains_unit'].append(d)
                     for src in st.sources:
                         if st.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
-                            self.unit_list['blocks'][block_index]\
-                                ['segments'][seg_index]['spiketrains'].append(st.positions)
-                            self.unit_list['blocks'][block_index]\
-                                ['segments'][seg_index]['spiketrains_id'].append(src.id)
+                            seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
+                            seg['spiketrains'].append(st.positions)
+                            seg['spiketrains_id'].append(src.id)
                             if st.features[0].data.type == "neo.waveforms":
                                 waveforms = st.features[0].data
-                                self.unit_list['blocks'][block_index]['segments'][seg_index]\
-                                    ['spiketrains_unit'][st_idx]['waveforms'] = waveforms
+                                seg['spiketrains_unit'][st_idx]['waveforms'] = waveforms
                                 # assume one spiketrain one waveform
                                 st_idx += 1
 
@@ -174,8 +172,6 @@ class NixRawIO (BaseRawIO):
 
     def _get_signal_size(self, block_index, seg_index, channel_indexes):
         size = 0
-        if channel_indexes is None:
-            channel_indexes = []
         ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
         for ch in ch_list:
             ch = int(ch)
@@ -188,8 +184,6 @@ class NixRawIO (BaseRawIO):
 
     def _get_signal_t_start(self, block_index, seg_index, channel_indexes):
         sig_t_start = 0
-        if channel_indexes is None:
-            channel_indexes = []
         ch_list = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
         for ch in ch_list:
             ch = int(ch)
@@ -209,11 +203,9 @@ class NixRawIO (BaseRawIO):
                 i_stop = self.da_list['blocks'][block_index]['segments'][seg_index]['data_size'][c]
                 break
 
-        nb_chan = np.unique(self.header['signal_channels'][channel_indexes]['group_id'])
+        nb_chan = int(np.unique(self.header['signal_channels'][channel_indexes]['group_id'])[0])
         raw_signals_list = []
-        for ch in nb_chan:
-            ch = int(ch)
-            chan_name = self.file.blocks[block_index].sources[ch].name
+        chan_name = self.file.blocks[block_index].sources[nb_chan].name
         da_list = self.da_list['blocks'][block_index]['segments'][seg_index]
         for idx in channel_indexes:
             da = da_list['data'][idx]
@@ -254,8 +246,8 @@ class NixRawIO (BaseRawIO):
 
     def _get_spike_raw_waveforms(self, block_index, seg_index, unit_index, t_start, t_stop):
         # this must return a 3D numpy array (nb_spike, nb_channel, nb_sample)
-        waveforms = self.unit_list['blocks'][block_index]['segments'][seg_index]\
-            ['spiketrains_unit'][unit_index]['waveforms']
+        seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
+        waveforms = seg['spiketrains_unit'][unit_index]['waveforms']
         raw_waveforms = np.array(waveforms)
 
         if t_start is not None:
@@ -304,7 +296,8 @@ class NixRawIO (BaseRawIO):
         for mt in self.file.blocks[0].groups[0].multi_tags:
             if mt.type == "neo.event":
                 ev_unit = mt.positions.unit
-        if ev_unit == 'ms' or ev_unit == 'Ms':
+                break
+        if ev_unit == 'ms':
             event_timestamps /= 1000
         event_times = event_timestamps.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return event_times  # return in seconds
@@ -314,7 +307,8 @@ class NixRawIO (BaseRawIO):
         for mt in self.file.blocks[0].groups[0].multi_tags:
             if mt.type == "neo.epoch":
                 ep_unit = mt.positions.unit
-        if ep_unit == 'ms' or ep_unit == 'Ms':
+                break
+        if ep_unit == 'ms':
             raw_duration /= 1000
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return durations  # return in seconds

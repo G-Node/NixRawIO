@@ -1,4 +1,4 @@
-from NixRawIO import NixRawIO
+from nixrawio import NixRawIO
 import numpy as np
 
 localfile = '/home/choi/PycharmProjects/Nixneo/example-file.nix'

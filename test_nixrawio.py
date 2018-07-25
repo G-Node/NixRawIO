@@ -1,7 +1,7 @@
 import os
 import shutil
 import unittest
-from NixRawIO import NixRawIO
+from nixrawio import NixRawIO
 from neo.rawio.tests.common_rawio_test import BaseTestRawIO
 
 
@@ -17,4 +17,4 @@ if __name__ == "__main__":
     testfilepath = "/tmp/files_for_testing_neo/nix/"
     os.makedirs(testfilepath, exist_ok=True)
     shutil.copy(testfname, testfilepath)
-    unittest.main()
+unittest.main()
