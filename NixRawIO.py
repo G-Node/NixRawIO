@@ -147,7 +147,7 @@ class NixRawIO (BaseRawIO):
                                 self.unit_list['blocks'][block_index]['segments'][seg_index]\
                                     ['spiketrains_unit'][st_idx]['waveforms'] = waveforms
                                 # assume one spiketrain one waveform
-                                st_idx +=1
+                                st_idx += 1
 
         self.header = {}
         self.header['nb_block'] = len(self.file.blocks)
@@ -236,7 +236,6 @@ class NixRawIO (BaseRawIO):
 
     def _get_spike_timestamps(self, block_index, seg_index, unit_index, t_start, t_stop):
         spike_dict = self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains']
-        head_id = self.header['unit_channels'][unit_index][1]  # not going to work unit_index can be list or array
         spike_timestamps = spike_dict[unit_index]
         spike_timestamps = np.transpose(spike_timestamps)
 
@@ -301,9 +300,21 @@ class NixRawIO (BaseRawIO):
         return timestamp, durations, labels  # only the first fits in rescale
 
     def _rescale_event_timestamp(self, event_timestamps, dtype):
+        ev_unit = ''
+        for mt in self.file.blocks[0].groups[0].multi_tags:
+            if mt.type == "neo.event":
+                ev_unit = mt.positions.unit
+        if ev_unit == 'ms' or ev_unit == 'Ms':
+            event_timestamps /= 1000
         event_times = event_timestamps.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
-        return event_times
+        return event_times  # return in seconds
 
     def _rescale_epoch_duration(self, raw_duration, dtype):
+        ep_unit = ''
+        for mt in self.file.blocks[0].groups[0].multi_tags:
+            if mt.type == "neo.epoch":
+                ep_unit = mt.positions.unit
+        if ep_unit == 'ms' or ep_unit == 'Ms':
+            raw_duration /= 1000
         durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
-        return durations
+        return durations  # return in seconds
