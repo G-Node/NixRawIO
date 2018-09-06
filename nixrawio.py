@@ -20,7 +20,6 @@ class NixRawIO (BaseRawIO):
     def __init__(self, filename=''):
         BaseRawIO.__init__(self)
         self.filename = filename
-        print(filename)
 
     def _source_name(self):
         return self.filename
@@ -155,6 +154,9 @@ class NixRawIO (BaseRawIO):
         self.header['event_channels'] = event_channels
 
         self._generate_minimal_annotations()
+        # self.raw_annotations = {'blocks': []}
+        # for block_index, bl in enumerate (self.file.blocks):
+        #     self.raw_annotations['blocks'].append({'name': bl.name, 'segments':[]})
 
     def _segment_t_start(self, block_index, seg_index):
         t_start = 0
