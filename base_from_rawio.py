@@ -39,15 +39,13 @@ class TestNixfr(unittest.TestCase):
     def test_spiketrain(self):
         unit1 = self.blk.channel_indexes[3].units[0]
         st1 = unit1.spiketrains[0]
-        print(st1.times)
-        print(np.cumsum(np.arange(0,1,0.1)).tolist() * pq.ms + 10 *pq.ms)
-        assert np.all(st1.times == np.cumsum(np.arange(0,1,0.1)).tolist() * pq.ms + 10 *pq.ms)
+        assert np.all(st1.times == np.cumsum(np.arange(0,1,0.1)).tolist() * pq.s + 10 *pq.s)
 
     def test_event(self):
         seg1 = self.blk.segments[0]
         event1 = seg1.events[0]
-        assert np.all(event1.times == 10 * pq.ms + np.cumsum(np.array([0,1,2,3,4])) * pq.ms)
-
+        raw_time = 10 + np.cumsum(np.array([0,1,2,3,4]))
+        assert np.all(event1.times == np.array(raw_time *pq.s / 1000))
         assert np.all(event1.labels == np.array([b'A', b'B', b'C', b'D', b'E']))
         assert len(seg1.events) == 1
 

@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TestNixRawIO.py" beforeDir="false" afterPath="$PROJECT_DIR$/TestNixRawIO.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/base_from_rawio.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_from_rawio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mk_test_fiile.py" beforeDir="false" afterPath="$PROJECT_DIR$/mk_test_fiile.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nixrawio.py" beforeDir="false" afterPath="$PROJECT_DIR$/nixrawio.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -36,22 +37,22 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="3063" />
+          <entry key="py" value="3279" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="3063" />
+          <entry key="Python" value="3279" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="69" />
+          <entry key="py" value="70" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="69" />
+          <entry key="Python" value="70" />
         </counts>
       </usages-collector>
     </session>
@@ -68,19 +69,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/rawio/baserawio.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-461">
-              <caret line="63" selection-start-line="63" selection-end-line="72" selection-end-column="1" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mk_test_fiile.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="953">
-              <caret line="71" column="25" selection-start-line="71" selection-start-column="19" selection-end-line="71" selection-end-column="25" />
+            <state relative-caret-position="359">
+              <caret line="71" column="25" selection-start-line="71" selection-start-column="25" selection-end-line="71" selection-end-column="25" />
               <folding>
                 <element signature="e#0#169#0" expanded="true" />
               </folding>
@@ -89,10 +81,24 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/base_from_rawio.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="305">
+              <caret line="46" column="56" selection-start-line="46" selection-start-column="56" selection-end-line="46" selection-end-column="56" />
+              <folding>
+                <element signature="e#0#44#0" expanded="true" />
+                <marker date="1536339956299" expanded="true" signature="230:1795" ph="..." />
+                <marker date="1536339956299" expanded="true" signature="617:622" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/nixrawio.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="238" column="28" selection-start-line="238" selection-start-column="28" selection-end-line="238" selection-end-column="28" />
+            <state relative-caret-position="348">
+              <caret line="302" column="36" lean-forward="true" selection-start-line="302" selection-start-column="36" selection-end-line="302" selection-end-column="36" />
               <folding>
                 <element signature="e#168#232#0" expanded="true" />
               </folding>
@@ -101,15 +107,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/base_from_rawio.py">
+        <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/rawio/baserawio.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="269">
-              <caret line="41" column="23" selection-start-line="41" selection-start-column="18" selection-end-line="41" selection-end-column="23" />
-              <folding>
-                <element signature="e#0#44#0" expanded="true" />
-                <marker date="1536337879330" expanded="true" signature="230:1862" ph="..." />
-                <marker date="1536337879330" expanded="true" signature="617:622" ph="..." />
-              </folding>
+            <state relative-caret-position="-376">
+              <caret line="574" column="62" selection-start-line="574" selection-start-column="62" selection-end-line="574" selection-end-column="71" />
             </state>
           </provider>
         </entry>
@@ -117,10 +118,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="14" column="9" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
+            <state relative-caret-position="341">
+              <caret line="28" column="53" selection-start-line="28" selection-start-column="53" selection-end-line="28" selection-end-column="53" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/io/basefromrawio.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-2914">
+              <caret line="219" column="54" selection-start-line="219" selection-start-column="49" selection-end-line="219" selection-end-column="54" />
+              <folding>
+                <element signature="e#411#475#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -130,7 +143,7 @@
         <entry file="file://$PROJECT_DIR$/nixio_fr.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="72">
-              <caret line="4" column="32" selection-start-line="4" selection-start-column="32" selection-end-line="4" selection-end-column="32" />
+              <caret line="4" column="27" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -149,7 +162,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>__common_sig_characteristics</find>
       <find>channel_id_to_index</find>
       <find>read_segment</find>
       <find>shape</find>
@@ -179,6 +191,7 @@
       <find>header</find>
       <find>event</find>
       <find>spike</find>
+      <find>rescale</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -208,9 +221,9 @@
         <option value="$USER_HOME$/.local/lib/python3.5/site-packages/nixio/data_array.py" />
         <option value="$PROJECT_DIR$/nixio_fr.py" />
         <option value="$PROJECT_DIR$/mk_test_fiile.py" />
-        <option value="$PROJECT_DIR$/TestNixRawIO.py" />
         <option value="$PROJECT_DIR$/base_from_rawio.py" />
         <option value="$PROJECT_DIR$/nixrawio.py" />
+        <option value="$PROJECT_DIR$/TestNixRawIO.py" />
       </list>
     </option>
   </component>
@@ -271,7 +284,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.base_from_rawio">
+  <component name="RunManager" selected="Python.TestNixRawIO">
     <configuration name="TestNixRawIO" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Nixneo" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -386,10 +399,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.base_from_rawio" />
         <item itemvalue="Python.TestNixRawIO" />
-        <item itemvalue="Python.nixrawio" />
+        <item itemvalue="Python.base_from_rawio" />
         <item itemvalue="Python.mk_test_fiile" />
+        <item itemvalue="Python.nixrawio" />
         <item itemvalue="Python.nixio_fr" />
       </list>
     </recent_temporary>
@@ -683,13 +696,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/rawio/baserawio.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-461">
-          <caret line="63" selection-start-line="63" selection-end-line="72" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/nixio/pycore/file.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="288">
@@ -731,30 +737,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/io/basefromrawio.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-790">
-          <caret line="421" column="62" lean-forward="true" selection-start-line="421" selection-start-column="62" selection-end-line="421" selection-end-column="62" />
-          <folding>
-            <element signature="e#411#475#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="9" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/nixio_fr.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
-          <caret line="4" column="32" selection-start-line="4" selection-start-column="32" selection-end-line="4" selection-end-column="32" />
+          <caret line="4" column="27" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
@@ -763,32 +749,59 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/base_from_rawio.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="269">
-          <caret line="41" column="23" selection-start-line="41" selection-start-column="18" selection-end-line="41" selection-end-column="23" />
+        <state relative-caret-position="305">
+          <caret line="46" column="56" selection-start-line="46" selection-start-column="56" selection-end-line="46" selection-end-column="56" />
           <folding>
             <element signature="e#0#44#0" expanded="true" />
-            <marker date="1536337879330" expanded="true" signature="230:1862" ph="..." />
-            <marker date="1536337879330" expanded="true" signature="617:622" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/nixrawio.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="238" column="28" selection-start-line="238" selection-start-column="28" selection-end-line="238" selection-end-column="28" />
-          <folding>
-            <element signature="e#168#232#0" expanded="true" />
+            <marker date="1536339956299" expanded="true" signature="230:1795" ph="..." />
+            <marker date="1536339956299" expanded="true" signature="617:622" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mk_test_fiile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="953">
-          <caret line="71" column="25" selection-start-line="71" selection-start-column="19" selection-end-line="71" selection-end-column="25" />
+        <state relative-caret-position="359">
+          <caret line="71" column="25" selection-start-line="71" selection-start-column="25" selection-end-line="71" selection-end-column="25" />
           <folding>
             <element signature="e#0#169#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/io/basefromrawio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2914">
+          <caret line="219" column="54" selection-start-line="219" selection-start-column="49" selection-end-line="219" selection-end-column="54" />
+          <folding>
+            <element signature="e#411#475#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestNixRawIO.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="28" column="53" selection-start-line="28" selection-start-column="53" selection-end-line="28" selection-end-column="53" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/neo-0.7.0.dev0-py3.5.egg/neo/rawio/baserawio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-376">
+          <caret line="574" column="62" selection-start-line="574" selection-start-column="62" selection-end-line="574" selection-end-column="71" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nixrawio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="302" column="36" lean-forward="true" selection-start-line="302" selection-start-column="36" selection-end-line="302" selection-end-column="36" />
+          <folding>
+            <element signature="e#168#232#0" expanded="true" />
           </folding>
         </state>
       </provider>

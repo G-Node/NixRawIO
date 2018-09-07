@@ -69,8 +69,9 @@ for block in (block1, block2):
                       labels=["A+", "B+", "C+"])
         seg.epochs.append(epoch)
 
-        st_times = tstart + np.cumsum(np.arange(0,1,0.1)) * pq.ms
-        tstop = max(event_times[-1], epoch_times[-1], st_times[-1]) + 1 * pq.ms
+        tstart = 10 *pq.s
+        st_times = tstart + np.cumsum(np.arange(0,1,0.1)) * pq.s
+        tstop = max(event_times[-1], epoch_times[-1], st_times[-1]) + 1 * pq.s
         st = SpikeTrain(name="Seg {} :: SpikeTrain".format(idx),
                         times=st_times, t_start=tstart, t_stop=tstop)
         wf = np.random.random((len(st_times), nchannels, 30)) * pq.mV
