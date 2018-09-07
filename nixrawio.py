@@ -270,7 +270,6 @@ class NixRawIO (BaseRawIO):
         return event_count
 
     def _get_event_timestamps(self, block_index, seg_index, event_channel_index, t_start, t_stop):
-        seg_t_start = self._segment_t_start(block_index, seg_index)
         timestamp = []
         labels = []
 
@@ -280,7 +279,7 @@ class NixRawIO (BaseRawIO):
                 po = mt.positions
                 if po.type == "neo.event.times":
                     timestamp.append(po)
-        timestamp = np.array(timestamp, dtype="float") + seg_t_start
+        timestamp = np.array(timestamp, dtype="float")  # change! we start from 0 not seg_t_start now
         labels = np.array(labels, dtype='U')
 
         if t_start is not None:

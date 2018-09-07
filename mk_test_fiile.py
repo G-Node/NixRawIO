@@ -83,7 +83,6 @@ for block in (block1, block2):
         print(unit)
         unit.spiketrains.append(st)
         chx.units.append(unit)
-
 # Write the Block to file using the NixIO
 # Any existing file will be overwritten
 fname = "test_case.nix"

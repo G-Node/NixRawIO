@@ -5,6 +5,7 @@ import numpy as np
 import unittest
 import os
 from nixio_fr import NixIOfr
+import quantities as pq
 
 
 class TestNixfr(unittest.TestCase):
@@ -38,30 +39,37 @@ class TestNixfr(unittest.TestCase):
     def test_spiketrain(self):
         unit1 = self.blk.channel_indexes[3].units[0]
         st1 = unit1.spiketrains[0]
-        print(st1)
-        assert st1.times-10 == np.cumsum(np.arange(0,1,0.1)).tolist()
+       # assert np.all(st1.times-10 * pq.ms) == np.cumsum(np.arange(0,1,0.1)).tolist() * pq.ms
 
     def test_event(self):
-        pass
+        seg1 = self.blk.segments[0]
+        event1 = seg1.events[0]
+        #assert event1.times == 10 + np.cumsum(np.array([0,1,2,3,4])) * pq.ms
+        print(event1)
+        print(event1.labels)
+        print(event1.times)
+        assert event1.labels == ["A" "B" "C" "D" "E"]
+        assert len(seg1.events) == 1
 
     def test_epoch(self):
-        pass
+        seg1 = self.blk.segments[1]
+        epoch1 = seg1.epochs[0]
 
     def test_waveform(self):
         pass
 
 
-# localfile = '/home/choi/PycharmProjects/Nixneo/neoraw.nix'
-#
-# reader = NixIOfr(filename=localfile)
-# blk = reader.read_block(0, load_waveforms= True)
-# blk1 = reader.read_block(1, load_waveforms= True)
+localfile = '/home/choi/PycharmProjects/Nixneo/test_case.nix'
+
+reader = NixIOfr(filename=localfile)
+blk = reader.read_block(0, load_waveforms= True)
+blk1 = reader.read_block(1, load_waveforms= True)
 # print(blk)
 # print(blk1)
 # print(blk.name)
 # print('//////////////////////////////////////////////////')
 # print(blk.segments)
-#
+
 # for asig in blk.segments[0].analogsignals:
 #     print("asigname", asig.name)
 #     print(asig.shape)
@@ -85,8 +93,10 @@ class TestNixfr(unittest.TestCase):
 #          print(u.spiketrains[0].t_stop)
 #          for st in u.spiketrains:
 #              print(st.waveforms.units)
-# print(blk.segments[1].events[0].name)
-# print(blk.segments[0].epochs[0].name)
+print(blk.segments[0].events)
+print(blk.segments[0].events[0].labels)
+print(blk.segments[0].events[0].times)
+print(blk.segments[0].epochs[0].name)
 # print(blk.segments[0].spiketrains)
 # print(blk.segments[1].spiketrains)
 
