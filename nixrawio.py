@@ -232,10 +232,11 @@ class NixRawIO (BaseRawIO):
         spike_dict = self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains']
         spike_timestamps = spike_dict[unit_index]
         spike_timestamps = np.transpose(spike_timestamps)
+        sr = self.header['signal_channels'][0][2]
 
         if t_start is not None or t_stop is not None:
-            lim0 = t_start
-            lim1 = t_stop
+            lim0 = t_start*sr
+            lim1 = t_stop*sr  # change! lim now multiply with sr
             mask = (spike_timestamps >= lim0) & (spike_timestamps <= lim1)
             spike_timestamps = spike_timestamps[mask]
         return spike_timestamps

@@ -8,9 +8,15 @@ import quantities as pq
 localfile = '/home/choi/PycharmProjects/Nixneo/test_case.nix'
 file = nix.File.open('test_case.nix', 'a')
 
-list = [1,2,3,4]
-array = np.array((1,2,3,4))
+list = ['a','b','c', 'd']
+array = np.array(list)
 print(array)
+arrays = np.array(array)
+arrays = arrays.astype("S")
+print(arrays)
+
+if np.all(arrays == array):
+    print('abc')
 
 d = file.blocks[0].name
 print(d)
