@@ -64,19 +64,21 @@ class NixRawIO (BaseRawIO):
             for seg in bl.groups:
                 for mt in seg.multi_tags:
                     if mt.type == "neo.spiketrain":
-                        for usrc in mt.sources:
-                            if usrc.type == "neo.unit":
-                                unit_name = usrc.metadata['neo_name']
-                                unit_id = usrc.id
-                                continue
-                        wf_units = mt.features[0].data.unit
+                        unit_name = mt.metadata['neo_name']  # change  skip the unit part!
+                        unit_id = mt.id
+                        if mt.features:
+                            wf_units = mt.features[0].data.unit
+                            wf_sampling_rate = 1 / mt.features[0].data.dimensions[
+                                2].sampling_interval
+                        else:
+                            wf_units = None  # change!
+                            wf_sampling_rate = 0
                         wf_gain = 1
                         wf_offset = 0.
-                        if "left_sweep" in mt.features[0].data.metadata:
+                        if mt.features and "left_sweep" in mt.features[0].data.metadata:  # change
                             wf_left_sweep = mt.features[0].data.metadata["left_sweep"]
                         else:
                             wf_left_sweep = 0
-                        wf_sampling_rate = 1 / mt.features[0].data.dimensions[2].sampling_interval
                         unit_channels.append((unit_name, unit_id, wf_units, wf_gain,
                                               wf_offset, wf_left_sweep, wf_sampling_rate))
                 break
@@ -136,13 +138,16 @@ class NixRawIO (BaseRawIO):
                     d = {'waveforms': []}
                     self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains_unit'].append(d)
                     for src in st.sources:
-                        if st.type == 'neo.spiketrain' and [src.type == "neo.unit"]:
+                        if st.type == 'neo.spiketrain': # change delete  and [src.type == "neo.unit"]
                             seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
                             seg['spiketrains'].append(st.positions)
                             seg['spiketrains_id'].append(src.id)
-                            if st.features[0].data.type == "neo.waveforms":
+                            if st.features and st.features[0].data.type == "neo.waveforms":
                                 waveforms = st.features[0].data
-                                seg['spiketrains_unit'][st_idx]['waveforms'] = waveforms
+                                if waveforms:
+                                    seg['spiketrains_unit'][st_idx]['waveforms'] = waveforms
+                                else:
+                                    seg['spiketrains_unit'][st_idx]['waveforms'] = None
                                 # assume one spiketrain one waveform
                                 st_idx += 1
 
@@ -198,6 +203,8 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
 
+        if channel_indexes is None:  # changed - channel_index can now be None
+            channel_indexes = list(range(self.header['signal_channels'].size))
         if i_start is None:
             i_start = 0
         if i_stop is None:
@@ -251,6 +258,8 @@ class NixRawIO (BaseRawIO):
         # this must return a 3D numpy array (nb_spike, nb_channel, nb_sample)
         seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
         waveforms = seg['spiketrains_unit'][unit_index]['waveforms']
+        if not waveforms:
+            return None  # change
         raw_waveforms = np.array(waveforms)
 
         if t_start is not None:
@@ -304,7 +313,7 @@ class NixRawIO (BaseRawIO):
         event_times = event_timestamps.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
         return event_times  # return in seconds
 
-    def _rescale_epoch_duration(self, raw_duration, dtype='float64'):
+    def _rescale_epoch_duration(self, raw_duration, dtype='float64'): #change
         ep_unit = ''
         for mt in self.file.blocks[0].groups[0].multi_tags:
             if mt.type == "neo.epoch":
