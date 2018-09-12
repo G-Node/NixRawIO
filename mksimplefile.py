@@ -43,7 +43,6 @@ for block in (block1, block2):
                             sampling_rate=sampling_rate)
         print("Seg {} :: Data {}".format(idx, 0))
         seg.analogsignals.append(asig)
-        block.channel_indexes[0].analogsignals.append(asig)
         # random sampling times for data_b
 
         # Event, Epoch, SpikeTrain
@@ -57,7 +56,7 @@ for block in (block1, block2):
         epoch_times = tstart + np.cumsum(np.random.random(3)) * pq.ms
         epoch = Epoch(name="Seg {} :: Epoch".format(idx),
                       times=epoch_times,
-                      durations=np.random.random(3)*pq.ms,
+                      durations=np.random.random(4)*pq.ms,
                       labels=["A+", "B+", "C+"])
         seg.epochs.append(epoch)
 
@@ -70,7 +69,6 @@ for block in (block1, block2):
         seg.spiketrains.append(st)
 
         unit = Unit(name="unit-{}".format(idx))
-        unit.spiketrains.append(st)
         chx.units.append(unit)
 
 # Write the Block to file using the NixIO

@@ -1,15 +1,23 @@
 """
 RawIO Class for NIX files
 
-The RawIO assumes all segments and all blocks have the same structure. It supports all kinds of NEO objects.
+The RawIO assumes all segments and all blocks have the same structure.
+It supports all kinds of NEO objects.
 
 Author: Chek Yin Choi
 """
 
 from __future__ import print_function, division, absolute_import
-from neo.rawio.baserawio import (BaseRawIO, _signal_channel_dtype, _unit_channel_dtype, _event_channel_dtype)
+from neo.rawio.baserawio import (BaseRawIO, _signal_channel_dtype,
+                                 _unit_channel_dtype, _event_channel_dtype)
 import numpy as np
-import nixio as nix
+try:
+    import nixio as nix
+
+    HAVE_NIX = True
+except ImportError:
+    HAVE_NIX = False
+    nix = None
 
 
 class NixRawIO (BaseRawIO):
@@ -42,6 +50,7 @@ class NixRawIO (BaseRawIO):
                         src = da.sources[0].sources[nixidx]
                         chan_id = src.metadata['channel_id']
                         ch_name = src.metadata['neo_name']
+                        print(ch_name, chan_id)
                         units = str(da.unit)
                         dtype = str(da.dtype)
                         sr = 1 / da.dimensions[0].sampling_interval
@@ -71,11 +80,11 @@ class NixRawIO (BaseRawIO):
                             wf_sampling_rate = 1 / mt.features[0].data.dimensions[
                                 2].sampling_interval
                         else:
-                            wf_units = None  # change!
+                            wf_units = None
                             wf_sampling_rate = 0
                         wf_gain = 1
                         wf_offset = 0.
-                        if mt.features and "left_sweep" in mt.features[0].data.metadata:  # change
+                        if mt.features and "left_sweep" in mt.features[0].data.metadata:
                             wf_left_sweep = mt.features[0].data.metadata["left_sweep"]
                         else:
                             wf_left_sweep = 0
@@ -137,19 +146,18 @@ class NixRawIO (BaseRawIO):
                 for st in seg.multi_tags:
                     d = {'waveforms': []}
                     self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains_unit'].append(d)
-                    for src in st.sources:
-                        if st.type == 'neo.spiketrain': # change delete  and [src.type == "neo.unit"]
-                            seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
-                            seg['spiketrains'].append(st.positions)
-                            seg['spiketrains_id'].append(src.id)
-                            if st.features and st.features[0].data.type == "neo.waveforms":
-                                waveforms = st.features[0].data
-                                if waveforms:
-                                    seg['spiketrains_unit'][st_idx]['waveforms'] = waveforms
-                                else:
-                                    seg['spiketrains_unit'][st_idx]['waveforms'] = None
-                                # assume one spiketrain one waveform
-                                st_idx += 1
+                    if st.type == 'neo.spiketrain':
+                        seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
+                        seg['spiketrains'].append(st.positions)
+                        seg['spiketrains_id'].append(st.id)
+                        if st.features and st.features[0].data.type == "neo.waveforms":
+                            waveforms = st.features[0].data
+                            if waveforms:
+                                seg['spiketrains_unit'][st_idx]['waveforms'] = waveforms
+                            else:
+                                seg['spiketrains_unit'][st_idx]['waveforms'] = None
+                            # assume one spiketrain one waveform
+                            st_idx += 1
 
         self.header = {}
         self.header['nb_block'] = len(self.file.blocks)
@@ -203,7 +211,7 @@ class NixRawIO (BaseRawIO):
 
     def _get_analogsignal_chunk(self, block_index, seg_index, i_start, i_stop, channel_indexes):
 
-        if channel_indexes is None:  # changed - channel_index can now be None
+        if channel_indexes is None:
             channel_indexes = list(range(self.header['signal_channels'].size))
         if i_start is None:
             i_start = 0
@@ -239,19 +247,16 @@ class NixRawIO (BaseRawIO):
         spike_dict = self.unit_list['blocks'][block_index]['segments'][seg_index]['spiketrains']
         spike_timestamps = spike_dict[unit_index]
         spike_timestamps = np.transpose(spike_timestamps)
-        sr = self.header['signal_channels'][0][2]
 
         if t_start is not None or t_stop is not None:
-            lim0 = t_start*sr
-            lim1 = t_stop*sr  # change! lim now multiply with sr
+            lim0 = t_start
+            lim1 = t_stop
             mask = (spike_timestamps >= lim0) & (spike_timestamps <= lim1)
             spike_timestamps = spike_timestamps[mask]
         return spike_timestamps
 
     def _rescale_spike_timestamp(self, spike_timestamps, dtype):
         spike_times = spike_timestamps.astype(dtype)
-        sr = self.header['signal_channels'][0][2]
-        spike_times *= sr
         return spike_times
 
     def _get_spike_raw_waveforms(self, block_index, seg_index, unit_index, t_start, t_stop):
@@ -259,7 +264,7 @@ class NixRawIO (BaseRawIO):
         seg = self.unit_list['blocks'][block_index]['segments'][seg_index]
         waveforms = seg['spiketrains_unit'][unit_index]['waveforms']
         if not waveforms:
-            return None  # change
+            return None
         raw_waveforms = np.array(waveforms)
 
         if t_start is not None:
@@ -282,16 +287,23 @@ class NixRawIO (BaseRawIO):
     def _get_event_timestamps(self, block_index, seg_index, event_channel_index, t_start, t_stop):
         timestamp = []
         labels = []
-
+        durations = None
+        if event_channel_index == None:
+            event_channel_index = np.arange(self.header['event_channels'].size)
         for mt in self.file.blocks[block_index].groups[seg_index].multi_tags:
-            if mt.type == "neo.event":
+            if mt.type == "neo.event" or mt.type == "neo.epoch":
                 labels.append(mt.positions.dimensions[0].labels)
                 po = mt.positions
-                if po.type == "neo.event.times":
+                if po.type == "neo.event.times" or po.type == "neo.epoch.times":
                     timestamp.append(po)
-        timestamp = np.array(timestamp, dtype="float")  # change! we start from 0 not seg_t_start now
+                if self.header['event_channels'][event_channel_index][2] == b'epoch' and mt.extents:
+                        if mt.extents.type == 'neo.epoch.durations':
+                            durations = np.array(mt.extents)
+                            break
+        timestamp = timestamp[event_channel_index][:]
+        timestamp = np.array(timestamp, dtype="float")
+        labels = labels[event_channel_index][:]
         labels = np.array(labels, dtype='U')
-
         if t_start is not None:
             keep = timestamp >= t_start
             timestamp, labels = timestamp[keep], labels[keep]
@@ -299,7 +311,6 @@ class NixRawIO (BaseRawIO):
         if t_stop is not None:
             keep = timestamp <= t_stop
             timestamp, labels = timestamp[keep], labels[keep]
-        durations = None
         return timestamp, durations, labels  # only the first fits in rescale
 
     def _rescale_event_timestamp(self, event_timestamps, dtype='float64'):
@@ -310,10 +321,11 @@ class NixRawIO (BaseRawIO):
                 break
         if ev_unit == 'ms':
             event_timestamps /= 1000
-        event_times = event_timestamps.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
+        event_times = event_timestamps.astype(dtype)
+        # supposing unit is second, other possibilies maybe mS microS...
         return event_times  # return in seconds
 
-    def _rescale_epoch_duration(self, raw_duration, dtype='float64'): #change
+    def _rescale_epoch_duration(self, raw_duration, dtype='float64'):
         ep_unit = ''
         for mt in self.file.blocks[0].groups[0].multi_tags:
             if mt.type == "neo.epoch":
@@ -321,5 +333,6 @@ class NixRawIO (BaseRawIO):
                 break
         if ep_unit == 'ms':
             raw_duration /= 1000
-        durations = raw_duration.astype(dtype)  # supposing unit is second, other possibilies maybe mS microS...
+        durations = raw_duration.astype(dtype)
+        # supposing unit is second, other possibilies maybe mS microS...
         return durations  # return in seconds

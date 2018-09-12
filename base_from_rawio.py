@@ -76,6 +76,7 @@ print(blk.segments)
 for asig in blk1.segments[0].analogsignals:
     print("asigname with block 2", asig.name)
     print(asig.shape)
+    print(asig[0:10])
 
 for seg in blk.segments:
     for st in seg.spiketrains:
@@ -92,14 +93,17 @@ for chx in blk.channel_indexes:
      for i, u in enumerate(chx.units):
          print(u.name)
          print(u.spiketrains)
-         print(u.spiketrains[i].times)
+         print(u.spiketrains[0].times)
          print(u.spiketrains[0].t_start)
          print(u.spiketrains[0].t_stop)
 
 print(blk.segments[0].events)
-print(blk.segments[0].events[0].labels.astype)
+print(blk.segments[0].events[0].labels)
 print(blk.segments[0].events[0].times)
 print(blk.segments[0].epochs[0].name)
+print(blk.segments[0].epochs[0].durations)
+print(blk.segments[0].epochs[0].times)
+print(blk.segments[0].epochs[0].labels)
 print(blk.segments[0].spiketrains)
 
 # if __name__ == '__main__':
